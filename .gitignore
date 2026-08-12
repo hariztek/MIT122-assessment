@@ -1,0 +1,9 @@
+# AI agent context/documentation — local working notes only, not part of
+# the academic submission. Every AI coding agent should keep these updated
+# (see AGENTS.md for the logging convention) but they must never be committed.
+AGENTS.md
+CLAUDE.md
+.agent/
+
+# OS cruft
+.DS_Store
