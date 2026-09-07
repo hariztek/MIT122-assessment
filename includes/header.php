@@ -32,7 +32,14 @@ if (session_status() === PHP_SESSION_NONE) {
 
 $pageTitle  = $pageTitle ?? 'Student SkillBridge';
 $isLoggedIn = isset($_SESSION['user_id']);
-$userRole   = $_SESSION['user_role'] ?? null;
+$currentPage = basename($_SERVER['SCRIPT_NAME'] ?? '');
+
+$navAttrs = static function (string $file) use ($currentPage): string {
+    $active = $currentPage === $file;
+    $class  = 'site-nav__link' . ($active ? ' site-nav__link--active' : '');
+    $aria   = $active ? ' aria-current="page"' : '';
+    return 'class="' . $class . '"' . $aria;
+};
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -48,21 +55,23 @@ $userRole   = $_SESSION['user_role'] ?? null;
 <body>
 <header class="site-header">
     <div class="container site-header__inner">
-        <a href="/index.php" class="brand">Student<span class="brand__accent">SkillBridge</span></a>
+        <a href="/index.php" class="brand">
+            <img src="/assets/img/logo-nav.png" alt="" class="brand__logo" width="144" height="56">
+            Student<span class="brand__accent">SkillBridge</span>
+        </a>
 
         <nav class="site-nav" aria-label="Main navigation">
-            <a href="/pages/search.php" class="site-nav__link">Search</a>
+            <a href="/index.php" <?= $navAttrs('index.php') ?>>Home</a>
+            <a href="/pages/search.php" <?= $navAttrs('search.php') ?>>Search</a>
+            <a href="/pages/matches.php" <?= $navAttrs('matches.php') ?>>Matches</a>
+            <a href="/pages/dashboard.php" <?= $navAttrs('dashboard.php') ?>>Dashboard</a>
+            <a href="/pages/profile.php" <?= $navAttrs('profile.php') ?>>Profile</a>
+            <a href="/pages/admin.php" <?= $navAttrs('admin.php') ?>>Admin</a>
 
             <?php if ($isLoggedIn): ?>
-                <a href="/pages/matches.php" class="site-nav__link">Matches</a>
-                <a href="/pages/dashboard.php" class="site-nav__link">Dashboard</a>
-                <a href="/pages/profile.php" class="site-nav__link">Profile</a>
-                <?php if ($userRole === 'admin'): ?>
-                    <a href="/pages/admin.php" class="site-nav__link">Admin</a>
-                <?php endif; ?>
                 <a href="/pages/login.php?action=logout" class="btn btn--secondary btn--sm">Log out</a>
             <?php else: ?>
-                <a href="/pages/login.php" class="site-nav__link">Log in</a>
+                <a href="/pages/login.php" <?= $navAttrs('login.php') ?>>Log in</a>
                 <a href="/pages/register.php" class="btn btn--primary btn--sm">Sign up</a>
             <?php endif; ?>
         </nav>
@@ -70,3 +79,7 @@ $userRole   = $_SESSION['user_role'] ?? null;
 </header>
 <main class="site-main">
     <div class="container">
+        <?php if (!empty($_SESSION['flash_success'])): ?>
+            <div class="alert alert--success" role="status"><?= e($_SESSION['flash_success']) ?></div>
+            <?php unset($_SESSION['flash_success']); ?>
+        <?php endif; ?>

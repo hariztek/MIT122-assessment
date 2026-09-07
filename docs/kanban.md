@@ -139,15 +139,15 @@ Almost all cards start in **To Do**. `SB-001`, `SB-002`, and `SB-003` are alread
 | SB-008 | Write shared-conventions note (DB connection file, validation approach, includes) | To Do | Should | 4 | S | — |
 | SB-009 | `includes/db.php` — PDO connection helper | Done | Must | 5 | S | SB-004 |
 | SB-010 | `includes/functions.php` — shared validation helpers | Done | Must | 5 | S | — |
-| SB-011 | `includes/header.php` / `footer.php` — shared layout | To Do | Must | 5 | S | — |
+| SB-011 | `includes/header.php` / `footer.php` — shared layout | Done | Must | 5 | S | — |
 | SB-012 | `register.php` — account creation (FR-01) | Done | Must | 5 | M | SB-009, SB-010, SB-011 |
 | SB-013 | `login.php` — authentication + session start (FR-02) | Testing | Must | 5 | M | SB-012 |
-| SB-014 | `includes/auth.php` — session/authorisation guard | To Do | Must | 5 | M | SB-013 |
-| SB-015 | `profile.php` — edit profile fields | To Do | Must | 5 | M | SB-014 |
+| SB-014 | `includes/auth.php` — session/authorisation guard | Done | Must | 5 | M | SB-013 |
+| SB-015 | `profile.php` — edit profile fields | Testing | Must | 5 | M | SB-014 |
 | SB-016 | `index.php` — landing page content | To Do | Must | 5 | S | SB-011 |
-| SB-017 | `profile.php` — add/edit/remove offered skills (FR-03/FR-04) | To Do | Must | 5 | M | SB-015 |
-| SB-018 | `profile.php` — add/edit/remove wanted skills (FR-03/FR-04) | To Do | Must | 5 | M | SB-017 |
-| SB-019 | Seed skill category taxonomy in `skills` table | To Do | Must | 6 | S | SB-004 |
+| SB-017 | `profile.php` — add/edit/remove offered skills (FR-03/FR-04) | Testing | Must | 5 | M | SB-015 |
+| SB-018 | `profile.php` — add/edit/remove wanted skills (FR-03/FR-04) | Testing | Must | 5 | M | SB-017 |
+| SB-019 | Seed skill category taxonomy in `skills` table | Done | Must | 6 | S | SB-004 |
 | SB-020 | `search.php` — keyword search (FR-05) | To Do | Must | 6 | M | SB-019 |
 | SB-021 | `search.php` — category filter | To Do | Must | 6 | S | SB-020 |
 | SB-022 | `search.php` — pagination/listing UI polish | To Do | Should | 6 | S | SB-020 |

@@ -242,6 +242,9 @@ button {
 }
 
 .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
     font-family: var(--font-headline);
     font-size: 22px;
     font-weight: 700;
@@ -250,6 +253,14 @@ button {
 
 .brand:hover {
     text-decoration: none;
+}
+
+.brand__logo {
+    display: block;
+    width: auto;
+    height: 56px;
+    object-fit: contain;
+    flex-shrink: 0;
 }
 
 .brand__accent {
@@ -573,4 +584,75 @@ textarea[aria-invalid="true"] {
 .alert--success {
     background-color: var(--color-tertiary-container);
     color: var(--color-tertiary);
+}
+
+/* ------------------------------------------------------------------ */
+/* Profile                                                               */
+/* ------------------------------------------------------------------ */
+
+.profile {
+    max-width: 720px;
+}
+
+.page-header {
+    margin-bottom: var(--space-lg);
+}
+
+.page-header .headline-lg {
+    margin-bottom: var(--space-xs);
+}
+
+.page-header__lede {
+    color: var(--color-on-surface-variant);
+    margin: 0;
+}
+
+.section {
+    margin-top: var(--space-lg);
+}
+
+.section .headline-md {
+    margin-bottom: var(--space-md);
+}
+
+.form-grid {
+    display: grid;
+    gap: 0 var(--space-md);
+}
+
+@media (min-width: 768px) {
+    .form-grid--2 {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .form-grid__full {
+        grid-column: 1 / -1;
+    }
+}
+
+textarea {
+    min-height: 96px;
+    resize: vertical;
+}
+
+input[readonly] {
+    color: var(--color-on-surface-variant);
+    cursor: default;
+}
+
+.btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.inline-form {
+    display: inline;
+    margin: 0;
+}
+
+.empty-state {
+    color: var(--color-on-surface-variant);
+    margin: 0 0 var(--space-md);
 }

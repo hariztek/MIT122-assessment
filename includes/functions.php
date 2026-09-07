@@ -103,3 +103,83 @@ function redirect(string $path): void
     header('Location: ' . $path);
     exit;
 }
+
+/**
+ * Allowed ENUM values for user_skills.level / mode / type.
+ *
+ * @return string[]
+ */
+function allowed_skill_levels(): array
+{
+    return ['beginner', 'intermediate', 'advanced', 'expert'];
+}
+
+/**
+ * @return string[]
+ */
+function allowed_skill_modes(): array
+{
+    return ['online', 'in_person', 'both'];
+}
+
+/**
+ * @return string[]
+ */
+function allowed_skill_types(): array
+{
+    return ['offer', 'want'];
+}
+
+/**
+ * Human-readable label for a stored ENUM / slug value.
+ */
+function enum_label(string $value): string
+{
+    return match ($value) {
+        'in_person'    => 'In person',
+        'career_study' => 'Career / study',
+        default        => ucfirst(str_replace('_', ' ', $value)),
+    };
+}
+
+/**
+ * Print <option> elements for an ENUM list.
+ *
+ * @param string[] $allowed
+ */
+function enum_select_options(array $allowed, string $selected): void
+{
+    foreach ($allowed as $value) {
+        $sel = $value === $selected ? ' selected' : '';
+        echo '<option value="' . e($value) . '"' . $sel . '>' . e(enum_label($value)) . '</option>';
+    }
+}
+
+/**
+ * Print grouped <option> elements for the skills catalogue.
+ *
+ * @param array<int,array<string,mixed>> $catalogue
+ * @param int[]                          $excludeIds
+ */
+function skill_optgroup_options(array $catalogue, array $excludeIds, string $selectedId): void
+{
+    $groups = [];
+    foreach ($catalogue as $skill) {
+        $id = (int) $skill['skill_id'];
+        if (in_array($id, $excludeIds, true)) {
+            continue;
+        }
+        $groups[$skill['category']][] = $skill;
+    }
+
+    echo '<option value="">Choose a skill</option>';
+    foreach ($groups as $category => $skills) {
+        echo '<optgroup label="' . e(enum_label((string) $category)) . '">';
+        foreach ($skills as $skill) {
+            $id  = (string) $skill['skill_id'];
+            $sel = $id === $selectedId ? ' selected' : '';
+            echo '<option value="' . e($id) . '"' . $sel . '>' . e((string) $skill['name']) . '</option>';
+        }
+        echo '</optgroup>';
+    }
+}

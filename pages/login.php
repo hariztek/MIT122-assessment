@@ -8,8 +8,8 @@
  *
  * Logout lives here too — the shared header already links to
  * /pages/login.php?action=logout — so one page owns the full session
- * start/end cycle. The reusable "must be logged in" guard for other
- * pages is a separate card (SB-014, includes/auth.php).
+ * start/end cycle. Protected pages call require_login() in
+ * includes/auth.php (SB-014).
  *
  * Every check here is server-side. HTML5 attributes are a convenience
  * only; this page re-validates on POST even if JavaScript is disabled.
@@ -90,27 +90,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id']   = (int) $user['user_id'];
             $_SESSION['user_name'] = $user['name'];
             $_SESSION['user_role'] = $user['role'];
-            redirect('/pages/login.php');
+            redirect('/pages/profile.php');
         }
     }
 }
 
-$isSignedIn = isset($_SESSION['user_id']);
-$pageTitle  = $isSignedIn ? 'Signed in' : 'Log in';
+if (isset($_SESSION['user_id'])) {
+    redirect('/pages/profile.php');
+}
+
+$pageTitle = 'Log in';
 require_once __DIR__ . '/../includes/header.php';
 ?>
 
 <div class="auth-layout">
-    <?php if ($isSignedIn): ?>
-        <div class="card">
-            <p class="label-md auth-layout__eyebrow">Signed in</p>
-            <h1 class="headline-lg">Welcome back</h1>
-            <p class="body-md auth-layout__lede">You're logged in as <?= e($_SESSION['user_name'] ?? 'a student') ?>. Session stays active if you reload this page.</p>
-            <a href="/pages/profile.php" class="btn btn--primary btn--block">Go to profile</a>
-            <p class="auth-switch"><a href="/pages/login.php?action=logout">Log out</a></p>
-        </div>
-    <?php else: ?>
-        <div class="card">
+    <div class="card">
             <h1 class="headline-lg">Log in</h1>
             <p class="body-md auth-layout__lede">Use the email and password you registered with.</p>
 
@@ -166,7 +160,6 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
 
         <p class="auth-switch">New here? <a href="/pages/register.php">Create an account</a></p>
-    <?php endif; ?>
 </div>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
