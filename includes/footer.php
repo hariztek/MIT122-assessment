@@ -15,5 +15,6 @@
         <p class="site-footer__meta">A free peer-to-peer skill-learning platform for university and college students &middot; MIT122 Assessment 2</p>
     </div>
 </footer>
+<script src="/assets/js/main.js?v=<?= filemtime(__DIR__ . '/../assets/js/main.js') ?>" defer></script>
 </body>
 </html>

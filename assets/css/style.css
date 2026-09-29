@@ -656,3 +656,890 @@ input[readonly] {
     color: var(--color-on-surface-variant);
     margin: 0 0 var(--space-md);
 }
+
+/* ------------------------------------------------------------------ */
+/* Landing page (index.php)                                              */
+/* Layout loosely follows a hero → features → advantages → CTA          */
+/* structure. Chartreuse is kept to accents (blobs, rings, buttons) so  */
+/* it stays well under the design system's ~10% screen budget.          */
+/* ------------------------------------------------------------------ */
+
+.chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-base);
+    margin: 0;
+}
+
+.landing-eyebrow {
+    color: var(--color-primary);
+    margin: 0 0 var(--space-sm);
+}
+
+.landing-muted {
+    color: var(--color-on-surface-variant);
+    margin: 0 0 var(--space-md);
+}
+
+.landing-section-title {
+    margin-bottom: var(--space-md);
+}
+
+/* Hero */
+
+.landing-hero {
+    position: relative;
+    display: grid;
+    gap: var(--space-lg);
+    background-color: var(--color-surface-container-low);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-xl);
+    padding: var(--space-lg) var(--space-md);
+    overflow: hidden;
+}
+
+.landing-hero__title {
+    margin-bottom: var(--space-md);
+}
+
+.landing-hero__more {
+    margin-top: var(--space-md);
+    padding-inline: 0;
+}
+
+.landing-hero__visual {
+    position: relative;
+    min-height: 300px;
+}
+
+.landing-blob {
+    position: absolute;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    background-color: var(--color-primary);
+    top: 10px;
+    right: -60px;
+    opacity: 0.9;
+}
+
+.landing-blob--right {
+    top: auto;
+    bottom: -40px;
+    right: -80px;
+}
+
+/* Decorative "screenshot" cards */
+
+.mock-card {
+    position: relative;
+    background-color: var(--color-surface-container-high);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    max-width: 300px;
+}
+
+.mock-card p {
+    margin: 0 0 var(--space-xs);
+}
+
+.mock-card__name {
+    font-family: var(--font-headline);
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.mock-card__score {
+    margin-top: var(--space-sm) !important;
+}
+
+.mock-card__actions {
+    margin-top: var(--space-sm);
+}
+
+.mock-card--tilt-left {
+    transform: rotate(-3deg);
+    z-index: 2;
+}
+
+.mock-card--tilt-right {
+    transform: rotate(4deg);
+    margin: -24px 0 0 auto;
+    max-width: 240px;
+    z-index: 1;
+}
+
+.mock-card--list {
+    max-width: 340px;
+    width: 100%;
+}
+
+.mock-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    padding-block: var(--space-sm);
+    border-bottom: 1px solid var(--color-outline-variant);
+    font-size: 14px;
+}
+
+.mock-row:last-child {
+    border-bottom: none;
+}
+
+.mock-row--float {
+    position: relative;
+    z-index: 1;
+    background-color: var(--color-surface-container-high);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-full);
+    padding: var(--space-sm) var(--space-md);
+    max-width: 300px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    font-weight: 600;
+}
+
+.mock-row--float + .mock-row--float {
+    margin-top: var(--space-sm);
+}
+
+.mock-row--offset {
+    margin-left: var(--space-lg);
+}
+
+/* Two feature cards */
+
+.feature-grid {
+    display: grid;
+    gap: var(--space-md);
+}
+
+.feature-card {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-md);
+    background-color: var(--color-surface-container);
+    border-radius: var(--radius-xl);
+    padding: var(--space-md);
+    min-height: 200px;
+    overflow: hidden;
+}
+
+.feature-card__text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    max-width: 320px;
+}
+
+.feature-card__text .btn {
+    margin-top: auto;
+    padding-inline: 0;
+}
+
+.feature-card__art {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    flex-shrink: 0;
+}
+
+.feature-card__art--pills {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-xs);
+}
+
+.score-ring {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: conic-gradient(var(--color-primary) 0 85%, var(--color-surface-container-highest) 85% 100%);
+    display: grid;
+    place-items: center;
+}
+
+.score-ring span {
+    width: 82px;
+    height: 82px;
+    border-radius: 50%;
+    background-color: var(--color-surface-container);
+    display: grid;
+    place-items: center;
+    font-family: var(--font-headline);
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--color-primary);
+}
+
+/* Advantages */
+
+.advantages {
+    display: grid;
+    gap: var(--space-md);
+}
+
+.advantages__grid {
+    display: grid;
+    gap: var(--space-md);
+}
+
+.advantage {
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid var(--color-surface-container-high);
+}
+
+.advantage__icon {
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+    margin-bottom: var(--space-sm);
+}
+
+.advantage__title {
+    margin: 0 0 var(--space-xs);
+}
+
+.advantage .card__meta {
+    margin: 0 0 var(--space-sm);
+}
+
+/* Categories */
+
+.categories {
+    text-align: center;
+}
+
+.categories .headline-lg {
+    margin-bottom: var(--space-sm);
+}
+
+.categories__list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-sm);
+}
+
+.category-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    min-height: 44px;
+    padding: 6px 18px 6px 6px;
+    border-radius: var(--radius-full);
+    background-color: var(--color-surface-container);
+    border: 1px solid var(--color-outline-variant);
+    color: var(--color-on-surface);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.category-pill:hover,
+.category-pill:focus-visible {
+    background-color: var(--color-surface-container-high);
+    border-color: var(--color-primary);
+    text-decoration: none;
+}
+
+.category-pill__count {
+    display: inline-grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background-color: var(--color-primary-soft);
+    color: var(--color-primary);
+}
+
+/* Dark band */
+
+.band {
+    display: grid;
+    gap: var(--space-md);
+    align-items: center;
+    background-color: var(--color-surface-container-lowest);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-xl);
+    padding: var(--space-lg) var(--space-md);
+    background-image: radial-gradient(circle at 0% 100%, var(--color-primary-soft), transparent 55%);
+}
+
+.band__visual {
+    display: flex;
+    justify-content: center;
+}
+
+/* Split sections */
+
+.split {
+    display: grid;
+    gap: var(--space-lg);
+    align-items: center;
+}
+
+.split__visual {
+    position: relative;
+    padding: var(--space-md);
+}
+
+.split__backdrop {
+    position: absolute;
+    inset: 0 30% 30% 0;
+    background-color: var(--color-primary);
+    border-radius: var(--radius-lg);
+    transform: rotate(-4deg);
+}
+
+.split__visual .mock-card {
+    margin-left: var(--space-md);
+}
+
+.split__visual--stack {
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    padding-block: var(--space-lg);
+}
+
+.split__copy .btn--tertiary {
+    padding-inline: 0;
+}
+
+/* Final CTA */
+
+.final-cta {
+    text-align: center;
+    padding-block: var(--space-lg);
+}
+
+.final-cta .headline-lg {
+    margin-bottom: var(--space-md);
+}
+
+/* Focus visibility for keyboard users on landing links/buttons */
+
+.landing-hero a:focus-visible,
+.section a:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+}
+
+@media (min-width: 768px) {
+    .landing-hero {
+        grid-template-columns: 1.1fr 0.9fr;
+        align-items: center;
+        padding: var(--space-xl) var(--space-lg);
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .advantages {
+        grid-template-columns: 1fr 2fr;
+        gap: var(--space-lg);
+    }
+
+    .advantages__grid {
+        grid-template-columns: 1fr 1fr;
+        column-gap: var(--space-lg);
+    }
+
+    .band {
+        grid-template-columns: 1.2fr 1fr;
+        padding: var(--space-lg);
+    }
+
+    .split {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Landing page motion & micro-interactions                             */
+/* Reveal/count-up/tilt are switched on by assets/js/main.js adding     */
+/* .js-motion to <html>; without JS (or with reduced motion) the page   */
+/* renders fully visible and static.                                    */
+/* ------------------------------------------------------------------ */
+
+@property --score {
+    syntax: '<percentage>';
+    inherits: false;
+    initial-value: 0%;
+}
+
+@keyframes rise-in {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: none; }
+}
+
+@keyframes float {
+    0%, 100% { translate: 0 0; }
+    50%      { translate: 0 -10px; }
+}
+
+@keyframes blob-breathe {
+    0%, 100% { scale: 1; }
+    50%      { scale: 1.08; }
+}
+
+@keyframes ring-fill {
+    from { --score: 0%; }
+    to   { --score: 85%; }
+}
+
+@keyframes nudge-down {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(4px); }
+}
+
+/* Hero entrance (plays on load) */
+
+.landing-hero__copy > * {
+    animation: rise-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.landing-hero__copy > :nth-child(2) { animation-delay: 0.08s; }
+.landing-hero__copy > :nth-child(3) { animation-delay: 0.16s; }
+.landing-hero__copy > :nth-child(4) { animation-delay: 0.24s; }
+.landing-hero__copy > :nth-child(5) { animation-delay: 0.32s; }
+
+.landing-hero__visual {
+    animation: rise-in 0.9s 0.2s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    transform: translate(var(--tilt-x, 0px), var(--tilt-y, 0px));
+    transition: transform 0.4s ease-out;
+}
+
+/* Ambient motion on decorative shapes/cards.
+   `rotate`/`translate`/`scale` are separate properties so the float
+   animation doesn't overwrite each card's tilt. */
+
+.mock-card--tilt-left {
+    transform: none;
+    rotate: -3deg;
+    animation: float 6s ease-in-out infinite;
+}
+
+.mock-card--tilt-right {
+    transform: none;
+    rotate: 4deg;
+    animation: float 7s 1.2s ease-in-out infinite;
+}
+
+.landing-blob {
+    animation: blob-breathe 8s ease-in-out infinite;
+}
+
+.split__backdrop {
+    transition: rotate 0.4s ease, transform 0.4s ease;
+}
+
+.split__visual:hover .split__backdrop {
+    transform: rotate(-7deg);
+}
+
+/* Score ring fills up on load */
+
+.score-ring {
+    background: conic-gradient(var(--color-primary) 0 var(--score, 85%), var(--color-surface-container-highest) var(--score, 85%) 100%);
+    animation: ring-fill 1.4s 0.3s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* "Find out more" arrow nudges */
+
+.landing-hero__more {
+    animation: rise-in 0.7s 0.4s both, nudge-down 1.8s 1.2s ease-in-out infinite;
+}
+
+/* Buttons: lift on hover, press on click */
+
+.btn {
+    transition: transform 0.15s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(211, 227, 74, 0.25);
+}
+
+.btn:active {
+    transform: translateY(0) scale(0.97);
+}
+
+.btn--tertiary:hover {
+    text-decoration: none;
+    transform: translateX(3px);
+}
+
+/* Cards: tonal lift on hover (per design.md, depth = lighter surface) */
+
+.feature-card,
+.advantage,
+.mock-row--float {
+    transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    background-color: var(--color-surface-container-high);
+}
+
+.feature-card__art--pills .chip {
+    transition: transform 0.25s ease;
+}
+
+.feature-card:hover .feature-card__art--pills .chip:nth-child(1) { transform: translateX(-6px); }
+.feature-card:hover .feature-card__art--pills .chip:nth-child(2) { transform: translateX(-12px); }
+.feature-card:hover .feature-card__art--pills .chip:nth-child(3) { transform: translateX(-18px); }
+
+.mock-row--float:hover {
+    transform: translateX(8px);
+    border-color: var(--color-primary);
+}
+
+.advantage__icon {
+    transition: transform 0.35s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+.advantage:hover .advantage__icon {
+    transform: rotate(-12deg) scale(1.12);
+}
+
+.category-pill {
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.category-pill:hover,
+.category-pill:focus-visible {
+    transform: translateY(-3px);
+}
+
+.category-pill__count {
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.category-pill:hover .category-pill__count,
+.category-pill:focus-visible .category-pill__count {
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+}
+
+/* Scroll reveal (only when JS enabled it) */
+
+.js-motion .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+}
+
+.js-motion .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+}
+
+/* Once revealed, hand transitions back to the hover rules above */
+.js-motion .feature-card.reveal.is-visible,
+.js-motion .mock-row--float.reveal.is-visible {
+    transition: opacity 0.7s ease var(--reveal-delay, 0ms), transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.js-motion .feature-card.reveal.is-visible:hover {
+    transform: translateY(-4px);
+}
+
+.js-motion .mock-row--float.reveal.is-visible:hover {
+    transform: translateX(8px);
+}
+
+/* Respect users who ask for less motion */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* ------------------------------------------------------------------ */
+/* Navigation: desktop link animation + full-screen mobile menu         */
+/* Below 900px (and only when JS is available — html.js), the nav       */
+/* collapses behind a hamburger and opens as a full-screen overlay.     */
+/* Without JS the wrapped inline nav from above is still shown.         */
+/* ------------------------------------------------------------------ */
+
+.site-nav__link {
+    position: relative;
+    transition: color 0.2s ease;
+}
+
+.site-nav__link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -6px;
+    height: 2px;
+    border-radius: var(--radius-full);
+    background-color: var(--color-primary);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.site-nav__link:hover::after,
+.site-nav__link:focus-visible::after,
+.site-nav__link--active::after {
+    transform: scaleX(1);
+}
+
+.site-nav a:focus-visible,
+.nav-toggle:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 4px;
+    border-radius: var(--radius-sm);
+}
+
+.brand__logo {
+    transition: transform 0.35s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+.brand:hover .brand__logo {
+    transform: rotate(-6deg) scale(1.05);
+}
+
+/* Hamburger button */
+
+.nav-toggle {
+    display: none;
+    position: relative;
+    z-index: 30;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-full);
+    border: 1.5px solid var(--color-outline-variant);
+    background-color: var(--color-surface-container);
+    color: var(--color-on-surface);
+    cursor: pointer;
+    transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.15s ease;
+}
+
+.nav-toggle:hover {
+    border-color: var(--color-outline);
+}
+
+.nav-toggle:active {
+    transform: scale(0.94);
+}
+
+.nav-toggle__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+.nav-toggle__bars {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 20px;
+    height: 14px;
+}
+
+.nav-toggle__bars span {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    border-radius: var(--radius-full);
+    background-color: currentColor;
+    transition: transform 0.35s cubic-bezier(0.6, 0, 0.2, 1), opacity 0.2s ease, top 0.35s cubic-bezier(0.6, 0, 0.2, 1);
+}
+
+.nav-toggle__bars span:nth-child(1) { top: 0; }
+.nav-toggle__bars span:nth-child(2) { top: 6px; }
+.nav-toggle__bars span:nth-child(3) { top: 12px; }
+
+.nav-open .nav-toggle {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-on-primary);
+}
+
+.nav-open .nav-toggle__bars span:nth-child(1) { top: 6px; transform: rotate(45deg); }
+.nav-open .nav-toggle__bars span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.nav-open .nav-toggle__bars span:nth-child(3) { top: 6px; transform: rotate(-45deg); }
+
+@media (max-width: 899px) {
+    .js .nav-toggle {
+        display: inline-block;
+    }
+
+    .js .site-header__inner {
+        flex-wrap: nowrap;
+    }
+
+    .js .brand {
+        position: relative;
+        z-index: 30;
+    }
+
+    /* Full-screen overlay */
+    .js .site-nav {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        flex-wrap: nowrap;
+        gap: var(--space-sm);
+        padding: 96px var(--space-md) var(--space-lg);
+        background-color: var(--color-surface-container-lowest);
+        background-image:
+            radial-gradient(circle at 100% 0%, var(--color-primary-soft), transparent 45%),
+            radial-gradient(circle at 0% 100%, var(--color-primary-soft), transparent 40%);
+        overflow-y: auto;
+        visibility: hidden;
+        opacity: 0;
+        clip-path: circle(0% at calc(100% - 40px) 40px);
+        transition: clip-path 0.6s cubic-bezier(0.7, 0, 0.2, 1), opacity 0.3s ease, visibility 0s linear 0.6s;
+    }
+
+    .js.nav-open .site-nav {
+        visibility: visible;
+        opacity: 1;
+        clip-path: circle(150% at calc(100% - 40px) 40px);
+        transition: clip-path 0.7s cubic-bezier(0.7, 0, 0.2, 1), opacity 0.2s ease, visibility 0s;
+    }
+
+    .js.nav-open,
+    .js.nav-open body {
+        overflow: hidden;
+    }
+
+    /* Big staggered links */
+    .js .site-nav > a {
+        opacity: 0;
+        transform: translateY(24px);
+        transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1), color 0.2s ease;
+    }
+
+    .js.nav-open .site-nav > a {
+        opacity: 1;
+        transform: none;
+    }
+
+    .js.nav-open .site-nav > a:nth-child(1) { transition-delay: 0.15s; }
+    .js.nav-open .site-nav > a:nth-child(2) { transition-delay: 0.20s; }
+    .js.nav-open .site-nav > a:nth-child(3) { transition-delay: 0.25s; }
+    .js.nav-open .site-nav > a:nth-child(4) { transition-delay: 0.30s; }
+    .js.nav-open .site-nav > a:nth-child(5) { transition-delay: 0.35s; }
+    .js.nav-open .site-nav > a:nth-child(6) { transition-delay: 0.40s; }
+    .js.nav-open .site-nav > a:nth-child(7) { transition-delay: 0.45s; }
+    .js.nav-open .site-nav > a:nth-child(8) { transition-delay: 0.50s; }
+
+    .js .site-nav__link {
+        font-family: var(--font-headline);
+        font-size: clamp(32px, 9vw, 48px);
+        font-weight: 700;
+        line-height: 1.15;
+        color: var(--color-on-surface);
+    }
+
+    .js .site-nav__link:hover,
+    .js .site-nav__link--active {
+        color: var(--color-primary);
+    }
+
+    .js .site-nav__link::after {
+        bottom: 2px;
+        height: 3px;
+    }
+
+    .js .site-nav > .btn {
+        margin-top: var(--space-md);
+        font-size: 16px;
+        padding: 14px 28px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .js .site-nav {
+        clip-path: none !important;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Responsive brand (logo + wordmark)                                    */
+/* Scales down on small screens so it never collides with the           */
+/* hamburger; on very narrow phones the wordmark is visually hidden     */
+/* but kept for screen readers (it is the link's accessible name).      */
+/* ------------------------------------------------------------------ */
+
+.brand {
+    min-width: 0;
+}
+
+.brand__text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 899px) {
+    .brand {
+        gap: var(--space-base);
+        font-size: 19px;
+    }
+
+    .brand__logo {
+        height: 44px;
+    }
+
+    .nav-toggle {
+        flex-shrink: 0;
+    }
+}
+
+@media (max-width: 479px) {
+    .brand {
+        font-size: 17px;
+    }
+
+    .brand__logo {
+        height: 36px;
+    }
+
+    .nav-toggle {
+        width: 44px;
+        height: 44px;
+    }
+}
+
+@media (max-width: 359px) {
+    .brand__text {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+    }
+}

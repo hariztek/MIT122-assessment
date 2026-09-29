@@ -50,17 +50,25 @@ $navAttrs = static function (string $file) use ($currentPage): string {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@600;700&family=Work+Sans:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <?php // ?v=<mtime> busts the browser cache whenever style.css changes. ?>
+    <link rel="stylesheet" href="/assets/css/style.css?v=<?= filemtime(__DIR__ . '/../assets/css/style.css') ?>">
+    <?php // Flags JS support before paint so the mobile menu can start collapsed without a flash; without JS the nav stays visible. ?>
+    <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
 <header class="site-header">
     <div class="container site-header__inner">
         <a href="/index.php" class="brand">
             <img src="/assets/img/logo-nav.png" alt="" class="brand__logo" width="144" height="56">
-            Student<span class="brand__accent">SkillBridge</span>
+            <span class="brand__text">Student<span class="brand__accent">SkillBridge</span></span>
         </a>
 
-        <nav class="site-nav" aria-label="Main navigation">
+        <button type="button" class="nav-toggle" aria-controls="site-nav" aria-expanded="false">
+            <span class="nav-toggle__label">Menu</span>
+            <span class="nav-toggle__bars" aria-hidden="true"><span></span><span></span><span></span></span>
+        </button>
+
+        <nav class="site-nav" id="site-nav" aria-label="Main navigation">
             <a href="/index.php" <?= $navAttrs('index.php') ?>>Home</a>
             <a href="/pages/search.php" <?= $navAttrs('search.php') ?>>Search</a>
             <a href="/pages/matches.php" <?= $navAttrs('matches.php') ?>>Matches</a>
