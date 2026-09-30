@@ -74,7 +74,9 @@ $navAttrs = static function (string $file) use ($currentPage): string {
             <a href="/pages/matches.php" <?= $navAttrs('matches.php') ?>>Matches</a>
             <a href="/pages/dashboard.php" <?= $navAttrs('dashboard.php') ?>>Dashboard</a>
             <a href="/pages/profile.php" <?= $navAttrs('profile.php') ?>>Profile</a>
-            <a href="/pages/admin.php" <?= $navAttrs('admin.php') ?>>Admin</a>
+            <?php if (($_SESSION['user_role'] ?? null) === 'admin'): ?>
+                <a href="/pages/admin.php" <?= $navAttrs('admin.php') ?>>Admin</a>
+            <?php endif; ?>
 
             <?php if ($isLoggedIn): ?>
                 <a href="/pages/login.php?action=logout" class="btn btn--secondary btn--sm">Log out</a>

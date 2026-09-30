@@ -15,12 +15,34 @@ if (session_status() === PHP_SESSION_NONE) {
 
 /**
  * Send anonymous visitors to login. Authenticated requests continue.
+ *
+ * Also re-reads the account's status and role from the database on
+ * every protected request, so an admin suspension (SB-033) or role
+ * change takes effect immediately rather than at the user's next login.
+ * A suspended (or deleted) account has its session ended.
  */
 function require_login(): void
 {
     if (!isset($_SESSION['user_id'])) {
         redirect('/pages/login.php');
     }
+
+    // `global` so the connection db.php creates is the same $pdo pages
+    // use afterwards (their own require_once of db.php is then a no-op).
+    global $pdo;
+    require_once __DIR__ . '/db.php';
+
+    $stmt = $pdo->prepare('SELECT role, status FROM users WHERE user_id = :id LIMIT 1');
+    $stmt->execute(['id' => (int) $_SESSION['user_id']]);
+    $account = $stmt->fetch();
+
+    if (!$account || $account['status'] !== 'active') {
+        $_SESSION = [];
+        session_destroy();
+        redirect('/pages/login.php?suspended=1');
+    }
+
+    $_SESSION['user_role'] = $account['role'];
 }
 
 /**

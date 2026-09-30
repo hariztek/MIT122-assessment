@@ -108,6 +108,10 @@ require_once __DIR__ . '/../includes/header.php';
             <h1 class="headline-lg">Log in</h1>
             <p class="body-md auth-layout__lede">Use the email and password you registered with.</p>
 
+            <?php if (isset($_GET['suspended'])): ?>
+                <div class="alert alert--error" role="alert">Your account has been suspended by an administrator, so you have been logged out.</div>
+            <?php endif; ?>
+
             <?php if ($justRegistered): ?>
                 <div class="alert alert--success" role="status">Account created. Log in to continue.</div>
             <?php endif; ?>

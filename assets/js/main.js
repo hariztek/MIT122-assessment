@@ -83,6 +83,30 @@
         });
     }
 
+    /* Search filters -------------------------------------------------- */
+    // Dropdowns marked data-autosubmit re-run the search when changed.
+    // The Search button still works without JS.
+
+    document.querySelectorAll('select[data-autosubmit]').forEach(function (select) {
+        select.addEventListener('change', function () {
+            if (select.form) {
+                select.form.submit();
+            }
+        });
+    });
+
+    /* Confirm destructive actions ------------------------------------- */
+    // Buttons with data-confirm ask before submitting (e.g. suspending an
+    // account in admin.php). The server still validates every request.
+
+    document.addEventListener('submit', function (e) {
+        var button = e.submitter;
+        if (button && button.hasAttribute('data-confirm') &&
+            !window.confirm(button.getAttribute('data-confirm'))) {
+            e.preventDefault();
+        }
+    });
+
     /* Motion ----------------------------------------------------------- */
 
     var reduceMotion = window.matchMedia &&

@@ -105,6 +105,31 @@ function redirect(string $path): void
 }
 
 /**
+ * Per-session CSRF token for state-changing forms (used by admin
+ * moderation). Embed with csrf_field(); verify with csrf_valid().
+ */
+function csrf_token(): string
+{
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+function csrf_field(): string
+{
+    return '<input type="hidden" name="csrf_token" value="' . e(csrf_token()) . '">';
+}
+
+function csrf_valid(): bool
+{
+    $sent = $_POST['csrf_token'] ?? '';
+    return is_string($sent)
+        && !empty($_SESSION['csrf_token'])
+        && hash_equals($_SESSION['csrf_token'], $sent);
+}
+
+/**
  * Allowed ENUM values for user_skills.level / mode / type.
  *
  * @return string[]

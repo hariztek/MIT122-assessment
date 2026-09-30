@@ -141,16 +141,16 @@ Almost all cards start in **To Do**. `SB-001`, `SB-002`, and `SB-003` are alread
 | SB-010 | `includes/functions.php` — shared validation helpers | Done | Must | 5 | S | — |
 | SB-011 | `includes/header.php` / `footer.php` — shared layout | Done | Must | 5 | S | — |
 | SB-012 | `register.php` — account creation (FR-01) | Done | Must | 5 | M | SB-009, SB-010, SB-011 |
-| SB-013 | `login.php` — authentication + session start (FR-02) | Testing | Must | 5 | M | SB-012 |
+| SB-013 | `login.php` — authentication + session start (FR-02) | Done | Must | 5 | M | SB-012 |
 | SB-014 | `includes/auth.php` — session/authorisation guard | Done | Must | 5 | M | SB-013 |
-| SB-015 | `profile.php` — edit profile fields | Testing | Must | 5 | M | SB-014 |
-| SB-016 | `index.php` — landing page content | To Do | Must | 5 | S | SB-011 |
-| SB-017 | `profile.php` — add/edit/remove offered skills (FR-03/FR-04) | Testing | Must | 5 | M | SB-015 |
-| SB-018 | `profile.php` — add/edit/remove wanted skills (FR-03/FR-04) | Testing | Must | 5 | M | SB-017 |
+| SB-015 | `profile.php` — edit profile fields | Done | Must | 5 | M | SB-014 |
+| SB-016 | `index.php` — landing page content | Done | Must | 5 | S | SB-011 |
+| SB-017 | `profile.php` — add/edit/remove offered skills (FR-03/FR-04) | Done | Must | 5 | M | SB-015 |
+| SB-018 | `profile.php` — add/edit/remove wanted skills (FR-03/FR-04) | Done | Must | 5 | M | SB-017 |
 | SB-019 | Seed skill category taxonomy in `skills` table | Done | Must | 6 | S | SB-004 |
-| SB-020 | `search.php` — keyword search (FR-05) | To Do | Must | 6 | M | SB-019 |
-| SB-021 | `search.php` — category filter | To Do | Must | 6 | S | SB-020 |
-| SB-022 | `search.php` — pagination/listing UI polish | To Do | Should | 6 | S | SB-020 |
+| SB-020 | `search.php` — keyword search (FR-05) | Testing | Must | 6 | M | SB-019 |
+| SB-021 | `search.php` — category filter | Testing | Must | 6 | S | SB-020 |
+| SB-022 | `search.php` — pagination/listing UI polish | Testing | Should | 6 | S | SB-020 |
 | SB-023 | `matches.php` — deterministic score calc (+50/+25/+15/+10, FR-06) | To Do | Must | 7 | L | SB-017, SB-018 |
 | SB-024 | `matches.php` — plain-language explanation per match | To Do | Must | 7 | M | SB-023 |
 | SB-025 | `matches.php` — ranked-results UI polish | To Do | Should | 7 | S | SB-023 |
@@ -160,8 +160,8 @@ Almost all cards start in **To Do**. `SB-001`, `SB-002`, and `SB-003` are alread
 | SB-029 | Cancel/complete an authorised request → creates `sessions` row (FR-08) | To Do | Must | 7 | M | SB-028 |
 | SB-030 | Review allowed only after shared completed session (FR-09) | To Do | Must | 8 | M | SB-029 |
 | SB-031 | Dashboard: show reviews left/received | To Do | Should | 8 | S | SB-030 |
-| SB-032 | `admin.php` — role-restricted access guard | To Do | Must | 8 | S | SB-014 |
-| SB-033 | Admin: moderate user accounts (FR-10) | To Do | Must | 8 | M | SB-032 |
+| SB-032 | `admin.php` — role-restricted access guard | Testing | Must | 8 | S | SB-014 |
+| SB-033 | Admin: moderate user accounts (FR-10) | Testing | Must | 8 | M | SB-032 |
 | SB-034 | Admin: moderate individual skill listings | To Do | Could | 8 | S | SB-032, SB-019 |
 | SB-035 | Admin: hide inappropriate reviews (FR-10) | To Do | Should | 8 | S | SB-032, SB-030 |
 | SB-036 | End-to-end manual test pass, all 8 pages | To Do | Must | 9 | L | SB-035 |
