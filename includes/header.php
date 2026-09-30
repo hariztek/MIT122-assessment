@@ -32,6 +32,17 @@ if (session_status() === PHP_SESSION_NONE) {
 
 $pageTitle  = $pageTitle ?? 'Student SkillBridge';
 $isLoggedIn = isset($_SESSION['user_id']);
+
+// Nav badge: incoming requests still waiting for this user's reply.
+$pendingRequests = 0;
+if ($isLoggedIn) {
+    require_once __DIR__ . '/db.php';
+    $pendingStmt = $pdo->prepare(
+        'SELECT COUNT(*) FROM session_requests WHERE receiver_id = :me AND status = \'pending\''
+    );
+    $pendingStmt->execute(['me' => (int) $_SESSION['user_id']]);
+    $pendingRequests = (int) $pendingStmt->fetchColumn();
+}
 $currentPage = basename($_SERVER['SCRIPT_NAME'] ?? '');
 
 $navAttrs = static function (string $file) use ($currentPage): string {
@@ -72,7 +83,7 @@ $navAttrs = static function (string $file) use ($currentPage): string {
             <a href="/index.php" <?= $navAttrs('index.php') ?>>Home</a>
             <a href="/pages/search.php" <?= $navAttrs('search.php') ?>>Search</a>
             <a href="/pages/matches.php" <?= $navAttrs('matches.php') ?>>Matches</a>
-            <a href="/pages/dashboard.php" <?= $navAttrs('dashboard.php') ?>>Dashboard</a>
+            <a href="/pages/dashboard.php" <?= $navAttrs('dashboard.php') ?>>Dashboard<?php if ($pendingRequests > 0): ?><span class="nav-badge" aria-hidden="true"><?= $pendingRequests > 9 ? '9+' : $pendingRequests ?></span><span class="visually-hidden"> (<?= $pendingRequests ?> new <?= $pendingRequests === 1 ? 'request' : 'requests' ?>)</span><?php endif; ?></a>
             <a href="/pages/profile.php" <?= $navAttrs('profile.php') ?>>Profile</a>
             <?php if (($_SESSION['user_role'] ?? null) === 'admin'): ?>
                 <a href="/pages/admin.php" <?= $navAttrs('admin.php') ?>>Admin</a>

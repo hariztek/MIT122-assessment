@@ -2252,3 +2252,43 @@ input[type="datetime-local"] {
     color-scheme: dark;
     min-height: 44px;
 }
+
+/* Nav badge: pending incoming requests next to "Dashboard" */
+@keyframes badge-pop {
+    0%   { transform: scale(0); }
+    70%  { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+@keyframes badge-ping {
+    0%        { box-shadow: 0 0 0 0 rgba(211, 227, 74, 0.55); }
+    70%, 100% { box-shadow: 0 0 0 8px rgba(211, 227, 74, 0); }
+}
+
+.nav-badge {
+    display: inline-grid;
+    place-items: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    margin-left: 6px;
+    border-radius: var(--radius-full);
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    vertical-align: 2px;
+    animation: badge-pop 0.4s cubic-bezier(0.3, 1.6, 0.5, 1) 0.3s backwards,
+               badge-ping 2s ease-out 1s 3;
+}
+
+@media (max-width: 899px) {
+    .js .site-nav .nav-badge {
+        min-width: 28px;
+        height: 28px;
+        font-size: 14px;
+        vertical-align: 10px;
+    }
+}
