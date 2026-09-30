@@ -43,7 +43,7 @@ $primaryLabel = $isLoggedIn ? 'Edit your skills' : 'Create a free account';
     <div class="landing-hero__copy">
         <p class="label-md landing-eyebrow">Free &middot; Student-run &middot; No payments</p>
         <h1 class="headline-xl landing-hero__title">Teach what you know.<br>Learn what you don't.</h1>
-        <p class="body-lg landing-muted">Student SkillBridge connects university and college students who want to swap skills. List what you can teach, what you want to learn, and we'll show you who fits &mdash; and exactly why.</p>
+        <p class="body-lg landing-muted">Student SkillBridge connects university and college students who want to swap skills. List what you can teach, what you want to learn, and we'll show you who fits, and exactly why.</p>
         <div class="btn-row">
             <a href="<?= e($primaryHref) ?>" class="btn btn--primary"><?= e($primaryLabel) ?></a>
             <?php if ($isLoggedIn): ?>
@@ -122,7 +122,7 @@ $primaryLabel = $isLoggedIn ? 'Edit your skills' : 'Create a free account';
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
             </span>
             <h3 class="label-lg advantage__title">Transparent matching</h3>
-            <p class="card__meta">A fixed point score &mdash; skill, mode, availability, experience. No AI guesswork.</p>
+            <p class="card__meta">A fixed point score: skill, mode, availability, experience. No AI guesswork.</p>
             <a href="/pages/matches.php" class="btn btn--secondary btn--sm">How it scores</a>
         </div>
         <div class="advantage">

@@ -38,6 +38,12 @@ FROM (
     UNION ALL SELECT 'lena@example.test',  'Graphic design',   'offer', 'advanced',     'online',    'Flexible',             'Figma, typography and layout basics.'
     UNION ALL SELECT 'lena@example.test',  'Video editing',    'offer', 'intermediate', 'online',    'Flexible',             'Premiere Pro cuts, captions and colour.'
     UNION ALL SELECT 'lena@example.test',  'Python',           'want',  'beginner',     'online',    'Flexible',             'Automate boring design tasks.'
+    -- Extra entries so matches show a ranked spread and a two-way swap.
+    UNION ALL SELECT 'sam@example.test',   'Python',           'offer', 'beginner',     'in_person', 'Tuesdays and Thursdays 2pm','Just finished the intro unit, happy to revise together.'
+    UNION ALL SELECT 'aiko@example.test',  'Python',           'offer', 'intermediate', 'in_person', 'Weekends',             'Data analysis with pandas.'
+    UNION ALL SELECT 'lena@example.test',  'Web development',  'offer', 'advanced',     'online',    'Flexible',             'HTML, CSS and portfolio sites.'
+    UNION ALL SELECT 'lena@example.test',  'Photography',      'want',  'beginner',     'online',    'Flexible',             'Better photos of my design work.'
+    UNION ALL SELECT 'priya@example.test', 'Excel',            'offer', 'intermediate', 'online',    'Weeknights after 6pm', 'Formulas, lookups and pivot tables.'
 ) AS x
 JOIN users  u ON u.email = x.email
 JOIN skills s ON s.name  = x.skill;

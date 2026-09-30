@@ -185,7 +185,7 @@ require_once __DIR__ . '/../includes/header.php';
                             <?php if ($isSelf): ?><span class="card__meta">(you)</span><?php endif; ?>
                         </th>
                         <td data-label="Email"><?= e($u['email']) ?></td>
-                        <td data-label="Campus"><?= e($u['campus'] ?: '—') ?></td>
+                        <td data-label="Campus"><?= e($u['campus'] ?: 'Not set') ?></td>
                         <td data-label="Skills"><?= (int) $u['skill_count'] ?></td>
                         <td data-label="Joined"><?= e(date('j M Y', strtotime($u['created_at']))) ?></td>
                         <td data-label="Status">

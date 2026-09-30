@@ -157,7 +157,7 @@ require_once __DIR__ . '/../includes/header.php';
 <div class="page-header">
     <p class="label-md landing-eyebrow">Browse</p>
     <h1 class="headline-lg">Search skills</h1>
-    <p class="page-header__lede">Find students who can teach what you want to learn &mdash; or who want to learn what you can teach.</p>
+    <p class="page-header__lede">Find students who can teach what you want to learn, or who want to learn what you can teach.</p>
 </div>
 
 <form class="search-form" method="get" action="/pages/search.php" role="search">

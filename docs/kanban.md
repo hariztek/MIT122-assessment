@@ -151,9 +151,9 @@ Almost all cards start in **To Do**. `SB-001`, `SB-002`, and `SB-003` are alread
 | SB-020 | `search.php` — keyword search (FR-05) | Testing | Must | 6 | M | SB-019 |
 | SB-021 | `search.php` — category filter | Testing | Must | 6 | S | SB-020 |
 | SB-022 | `search.php` — pagination/listing UI polish | Testing | Should | 6 | S | SB-020 |
-| SB-023 | `matches.php` — deterministic score calc (+50/+25/+15/+10, FR-06) | To Do | Must | 7 | L | SB-017, SB-018 |
-| SB-024 | `matches.php` — plain-language explanation per match | To Do | Must | 7 | M | SB-023 |
-| SB-025 | `matches.php` — ranked-results UI polish | To Do | Should | 7 | S | SB-023 |
+| SB-023 | `matches.php` — deterministic score calc (+50/+25/+15/+10, FR-06) | Testing | Must | 7 | L | SB-017, SB-018 |
+| SB-024 | `matches.php` — plain-language explanation per match | Testing | Must | 7 | M | SB-023 |
+| SB-025 | `matches.php` — ranked-results UI polish | Testing | Should | 7 | S | SB-023 |
 | SB-026 | Send session request with goal + proposed time (FR-07) | To Do | Must | 7 | M | SB-023 |
 | SB-027 | `dashboard.php` — incoming/outgoing request lists | To Do | Must | 7 | M | SB-026 |
 | SB-028 | Accept/decline a pending request (FR-08) | To Do | Must | 7 | M | SB-026, SB-027 |
