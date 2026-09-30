@@ -2388,3 +2388,102 @@ input[type="datetime-local"] {
     outline-offset: 2px;
     border-radius: var(--radius-sm);
 }
+
+/* ------------------------------------------------------------------ */
+/* Reviews list on the dashboard (SB-031)                               */
+/* ------------------------------------------------------------------ */
+
+.reviews-section {
+    border-top: 1px solid var(--color-outline-variant);
+    padding-top: var(--space-lg);
+}
+
+.reviews-section__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm) var(--space-md);
+}
+
+.reviews-section .request-columns .headline-md,
+.reviews-section__head .headline-md {
+    margin: 0;
+}
+
+.reviews-section__sub {
+    color: var(--color-on-surface-variant);
+    margin: var(--space-md) 0 var(--space-sm);
+}
+
+.rating-summary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin: 0;
+    padding: var(--space-xs) var(--space-md) var(--space-xs) var(--space-xs);
+    border-radius: var(--radius-full);
+    background-color: var(--color-surface-container);
+}
+
+.rating-summary__num {
+    display: inline-grid;
+    place-items: center;
+    min-width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+    font-family: var(--font-headline);
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.review-card {
+    background-color: var(--color-surface-container);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.review-card:hover {
+    background-color: var(--color-surface-container-high);
+    transform: translateY(-2px);
+}
+
+.review-card__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-sm);
+}
+
+.review-card__head p,
+.review-card__head h3 {
+    margin: 0;
+}
+
+.review-card__comment {
+    margin: var(--space-sm) 0;
+    padding-left: var(--space-sm);
+    border-left: 2px solid var(--color-primary-soft);
+    font-style: italic;
+}
+
+.review-card__comment--empty {
+    margin: var(--space-sm) 0;
+}
+
+.review-card__date {
+    margin: 0;
+}
+
+.review-card.is-hidden .review-card__comment,
+.review-card.is-hidden .stars {
+    opacity: 0.6;
+}
+
+.review-card__hidden {
+    color: var(--color-error);
+    font-weight: 600;
+}

@@ -159,7 +159,7 @@ Almost all cards start in **To Do**. `SB-001`, `SB-002`, and `SB-003` are alread
 | SB-028 | Accept/decline a pending request (FR-08) | Testing | Must | 7 | M | SB-026, SB-027 |
 | SB-029 | Cancel/complete an authorised request → creates `sessions` row (FR-08) | Testing | Must | 7 | M | SB-028 |
 | SB-030 | Review allowed only after shared completed session (FR-09) | Testing | Must | 8 | M | SB-029 |
-| SB-031 | Dashboard: show reviews left/received | To Do | Should | 8 | S | SB-030 |
+| SB-031 | Dashboard: show reviews left/received | Testing | Should | 8 | S | SB-030 |
 | SB-032 | `admin.php` — role-restricted access guard | Testing | Must | 8 | S | SB-014 |
 | SB-033 | Admin: moderate user accounts (FR-10) | Testing | Must | 8 | M | SB-032 |
 | SB-034 | Admin: moderate individual skill listings *(raised from Could: FR-10 names skills)* | To Do | Must | 8 | S | SB-032, SB-019 |

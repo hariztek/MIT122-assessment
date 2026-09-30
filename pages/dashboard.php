@@ -40,6 +40,10 @@
  * reviewer took part, the reviewee is the OTHER participant (never
  * self), and no review by this reviewer exists yet (UNIQUE
  * (session_id, reviewer_id) is the backstop).
+ *
+ * SB-031: a Reviews section lists reviews about you (visible ones only,
+ * with your average rating) and reviews you've written (including a
+ * note if an admin has hidden one).
  */
 require_once __DIR__ . '/../includes/auth.php';
 require_login();
@@ -406,6 +410,73 @@ $outgoingStmt = $pdo->prepare(
 $outgoingStmt->execute(['me' => $userId, 'me_rev' => $userId]);
 $outgoing = $outgoingStmt->fetchAll();
 
+/* ------------------------------------------------------------------ */
+/* Reviews about you + written by you (SB-031)                          */
+/* ------------------------------------------------------------------ */
+
+$reviewSelect = 'SELECT rv.rating, rv.comment, rv.status, rv.created_at, s.name AS skill_name,
+                        other.name AS other_name
+                 FROM reviews rv
+                 JOIN sessions ses        ON ses.session_id = rv.session_id
+                 JOIN session_requests r  ON r.request_id   = ses.request_id
+                 JOIN skills s            ON s.skill_id     = r.skill_id';
+
+// Hidden reviews (admin moderation) are not shown to, or counted for, the reviewee.
+$aboutStmt = $pdo->prepare(
+    $reviewSelect . '
+     JOIN users other ON other.user_id = rv.reviewer_id
+     WHERE rv.reviewee_id = :me AND rv.status = \'visible\'
+     ORDER BY rv.created_at DESC'
+);
+$aboutStmt->execute(['me' => $userId]);
+$reviewsAbout = $aboutStmt->fetchAll();
+
+$byStmt = $pdo->prepare(
+    $reviewSelect . '
+     JOIN users other ON other.user_id = rv.reviewee_id
+     WHERE rv.reviewer_id = :me
+     ORDER BY rv.created_at DESC'
+);
+$byStmt->execute(['me' => $userId]);
+$reviewsBy = $byStmt->fetchAll();
+
+$reviewCount = count($reviewsAbout);
+$avgRating   = $reviewCount > 0
+    ? array_sum(array_map(static fn ($r) => (int) $r['rating'], $reviewsAbout)) / $reviewCount
+    : null;
+
+/**
+ * Render one review card.
+ *
+ * @param array<string,mixed> $rv
+ */
+function render_review(array $rv, string $direction): void
+{
+    $rating = (int) $rv['rating'];
+    ?>
+    <li class="review-card<?= $rv['status'] === 'hidden' ? ' is-hidden' : '' ?>">
+        <div class="review-card__head">
+            <div>
+                <p class="label-md request-card__skill"><?= e($rv['skill_name']) ?></p>
+                <h3 class="card__title"><?= $direction === 'about' ? 'From' : 'To' ?> <?= e($rv['other_name']) ?></h3>
+            </div>
+            <span class="stars" role="img" aria-label="<?= $rating ?> out of 5 stars"><?= str_repeat('★', $rating) ?><span class="stars__off"><?= str_repeat('★', 5 - $rating) ?></span></span>
+        </div>
+        <?php if ($rv['comment'] !== null && $rv['comment'] !== ''): ?>
+            <blockquote class="review-card__comment"><?= nl2br(e($rv['comment'])) ?></blockquote>
+        <?php else: ?>
+            <p class="card__meta review-card__comment--empty">No comment left.</p>
+        <?php endif; ?>
+        <p class="card__meta review-card__date">
+            <time datetime="<?= e((new DateTimeImmutable($rv['created_at']))->format('Y-m-d')) ?>"><?= e((new DateTimeImmutable($rv['created_at']))->format('j M Y')) ?></time>
+            <?php if ($rv['status'] === 'hidden'): ?>
+                &middot; <span class="review-card__hidden">Hidden by an admin</span>
+            <?php endif; ?>
+        </p>
+    </li>
+    <?php
+}
+
 $pendingIncoming = count(array_filter($incoming, static fn ($r) => $r['status'] === 'pending'));
 
 // Earliest allowed value for the datetime picker (client hint only).
@@ -634,5 +705,41 @@ require_once __DIR__ . '/../includes/header.php';
         <?php endif; ?>
     </section>
 </div>
+
+<section class="section reviews-section" id="reviews" aria-labelledby="reviews-heading">
+    <div class="reviews-section__head">
+        <h2 class="headline-md" id="reviews-heading">Reviews</h2>
+        <?php if ($avgRating !== null): ?>
+            <p class="rating-summary">
+                <span class="rating-summary__num"><?= e(number_format($avgRating, 1)) ?></span>
+                <span class="stars" role="img" aria-label="Average <?= e(number_format($avgRating, 1)) ?> out of 5 stars"><?= str_repeat('★', (int) round($avgRating)) ?><span class="stars__off"><?= str_repeat('★', 5 - (int) round($avgRating)) ?></span></span>
+                <span class="card__meta">from <?= $reviewCount ?> <?= $reviewCount === 1 ? 'review' : 'reviews' ?></span>
+            </p>
+        <?php endif; ?>
+    </div>
+
+    <div class="request-columns">
+        <div>
+            <h3 class="label-md reviews-section__sub">About you</h3>
+            <?php if ($reviewsAbout === []): ?>
+                <p class="empty-state">No reviews yet. After you complete a session, the other student can review you.</p>
+            <?php else: ?>
+                <ul class="request-list">
+                    <?php foreach ($reviewsAbout as $rv) { render_review($rv, 'about'); } ?>
+                </ul>
+            <?php endif; ?>
+        </div>
+        <div>
+            <h3 class="label-md reviews-section__sub">Written by you</h3>
+            <?php if ($reviewsBy === []): ?>
+                <p class="empty-state">You haven't reviewed anyone yet. Completed sessions show a "Leave a review" button.</p>
+            <?php else: ?>
+                <ul class="request-list">
+                    <?php foreach ($reviewsBy as $rv) { render_review($rv, 'by'); } ?>
+                </ul>
+            <?php endif; ?>
+        </div>
+    </div>
+</section>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
