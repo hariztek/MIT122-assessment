@@ -2292,3 +2292,20 @@ input[type="datetime-local"] {
         vertical-align: 10px;
     }
 }
+
+/* Request replies (SB-028) */
+.request-card__actions {
+    margin-top: var(--space-sm);
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--color-outline-variant);
+}
+
+.request-card__note {
+    margin: var(--space-sm) 0 0;
+    font-size: 13px;
+    color: var(--color-on-surface-variant);
+}
+
+.request-card__note--ok {
+    color: var(--color-tertiary);
+}

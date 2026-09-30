@@ -18,8 +18,13 @@
  *     teacher for the same skill (prevents duplicates).
  *
  * SB-027: incoming (you are the teacher) and outgoing (you asked)
- * requests are listed separately. Accept/decline (SB-028) and
- * cancel/complete (SB-029) are the next cards.
+ * requests are listed separately.
+ *
+ * SB-028 / FR-08: the RECEIVER of a PENDING request can accept or
+ * decline it. The UPDATE itself is guarded (request_id + receiver_id +
+ * status = 'pending'), so a forged, repeated or stale action changes
+ * nothing. A request whose proposed time has already passed can only be
+ * declined. Cancel/complete (SB-029) is the next card.
  */
 require_once __DIR__ . '/../includes/auth.php';
 require_login();
@@ -129,6 +134,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'send_
 }
 
 /* ------------------------------------------------------------------ */
+/* Accept / decline an incoming request (POST)                          */
+/* ------------------------------------------------------------------ */
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'respond') {
+    $requestId = filter_var($_POST['request_id'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+    $decision  = (string) ($_POST['decision'] ?? '');
+
+    if (!csrf_valid()) {
+        $_SESSION['flash_error'] = 'Your session expired. Please try again.';
+        redirect('/pages/dashboard.php#incoming');
+    }
+    if ($requestId === false || !valid_enum($decision, ['accept', 'decline'])) {
+        $_SESSION['flash_error'] = 'That action was not valid.';
+        redirect('/pages/dashboard.php#incoming');
+    }
+
+    $find = $pdo->prepare(
+        'SELECT r.request_id, r.proposed_time, r.status, u.name AS sender_name, s.name AS skill_name
+         FROM session_requests r
+         JOIN users  u ON u.user_id  = r.sender_id
+         JOIN skills s ON s.skill_id = r.skill_id
+         WHERE r.request_id = :id AND r.receiver_id = :me
+         LIMIT 1'
+    );
+    $find->execute(['id' => $requestId, 'me' => $userId]);
+    $req = $find->fetch();
+
+    if (!$req) {
+        // Not found, or not addressed to this user: same message either way.
+        $_SESSION['flash_error'] = 'That request could not be found.';
+    } elseif ($req['status'] !== 'pending') {
+        $_SESSION['flash_error'] = 'That request has already been ' . $req['status'] . '.';
+    } elseif ($decision === 'accept' && new DateTimeImmutable($req['proposed_time']) <= new DateTimeImmutable('now')) {
+        $_SESSION['flash_error'] = 'The proposed time has already passed, so this request can only be declined.';
+    } else {
+        $newStatus = $decision === 'accept' ? 'accepted' : 'declined';
+        $update = $pdo->prepare(
+            'UPDATE session_requests SET status = :status
+             WHERE request_id = :id AND receiver_id = :me AND status = \'pending\''
+        );
+        $update->execute(['status' => $newStatus, 'id' => $requestId, 'me' => $userId]);
+
+        if ($update->rowCount() === 1) {
+            $_SESSION['flash_success'] = $newStatus === 'accepted'
+                ? 'You accepted ' . $req['sender_name'] . '\'s ' . $req['skill_name'] . ' session.'
+                : 'You declined ' . $req['sender_name'] . '\'s ' . $req['skill_name'] . ' request.';
+        } else {
+            $_SESSION['flash_error'] = 'That request changed before your reply was saved. Please check it again.';
+        }
+    }
+    redirect('/pages/dashboard.php#incoming');
+}
+
+/* ------------------------------------------------------------------ */
 /* Load incoming + outgoing requests                                    */
 /* ------------------------------------------------------------------ */
 
@@ -190,6 +249,27 @@ function render_request(array $r, string $direction): void
         <p class="request-card__when">
             <time datetime="<?= e($when->format('Y-m-d\TH:i')) ?>"><?= e($when->format('D j M Y, g:i a')) ?></time>
         </p>
+
+        <?php if ($r['status'] === 'pending' && $direction === 'incoming'): ?>
+            <?php $isPast = $when <= new DateTimeImmutable('now'); ?>
+            <form method="post" action="/pages/dashboard.php" class="btn-row request-card__actions">
+                <?= csrf_field() ?>
+                <input type="hidden" name="action" value="respond">
+                <input type="hidden" name="request_id" value="<?= (int) $r['request_id'] ?>">
+                <?php if (!$isPast): ?>
+                    <button type="submit" name="decision" value="accept" class="btn btn--primary btn--sm">Accept<span class="visually-hidden"> request from <?= e($r['other_name']) ?></span></button>
+                <?php endif; ?>
+                <button type="submit" name="decision" value="decline" class="btn btn--danger btn--sm"
+                        data-confirm="Decline <?= e($r['other_name']) ?>'s <?= e($r['skill_name']) ?> request? This can't be undone.">Decline<span class="visually-hidden"> request from <?= e($r['other_name']) ?></span></button>
+                <?php if ($isPast): ?>
+                    <span class="card__meta">This time has passed, so it can only be declined.</span>
+                <?php endif; ?>
+            </form>
+        <?php elseif ($r['status'] === 'pending'): ?>
+            <p class="request-card__note">Waiting for <?= e($r['other_name']) ?> to reply.</p>
+        <?php elseif ($r['status'] === 'accepted'): ?>
+            <p class="request-card__note request-card__note--ok">Confirmed. Meet at the time above.</p>
+        <?php endif; ?>
     </li>
     <?php
 }
