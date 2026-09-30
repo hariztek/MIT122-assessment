@@ -84,6 +84,21 @@ function valid_future_datetime(string $value): bool
 }
 
 /**
+ * Strictly parse an <input type="datetime-local"> value ("2026-10-02T14:30").
+ * Returns null for anything that isn't exactly that format and a real
+ * calendar date/time (so "2026-02-31T10:00" is rejected, not rolled over).
+ */
+function parse_datetime_local(string $value): ?DateTimeImmutable
+{
+    $dt     = DateTimeImmutable::createFromFormat('!Y-m-d\TH:i', trim($value));
+    $errors = DateTimeImmutable::getLastErrors();
+    if ($dt === false || ($errors && ($errors['warning_count'] || $errors['error_count']))) {
+        return null;
+    }
+    return $dt->format('Y-m-d\TH:i') === trim($value) ? $dt : null;
+}
+
+/**
  * Escape a value for safe HTML output. Short name is a deliberate,
  * common convention (e.g. `<?= e($user['name']) ?>`) so escaping is
  * never skipped for being inconvenient to type.

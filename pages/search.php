@@ -252,6 +252,9 @@ require_once __DIR__ . '/../includes/header.php';
                         <div><dt>Available</dt><dd><?= e($row['availability']) ?></dd></div>
                     <?php endif; ?>
                 </dl>
+                <?php if ($row['type'] === 'offer'): ?>
+                    <a href="/pages/dashboard.php?new=<?= (int) $row['user_skill_id'] ?>" class="btn btn--secondary btn--sm result-card__cta">Request session<span class="visually-hidden"> with <?= e($row['student_name']) ?> for <?= e($row['skill_name']) ?></span></a>
+                <?php endif; ?>
             </li>
         <?php endforeach; ?>
     </ul>

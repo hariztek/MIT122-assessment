@@ -52,7 +52,7 @@ $matches = [];
 
 if ($wants !== []) {
     $offerStmt = $pdo->prepare(
-        'SELECT o.skill_id, o.level, o.mode, o.availability, o.description,
+        'SELECT o.user_skill_id, o.skill_id, o.level, o.mode, o.availability, o.description,
                 u.user_id, u.name, u.campus
          FROM user_skills o
          JOIN users u ON u.user_id = o.user_id
@@ -226,6 +226,10 @@ require_once __DIR__ . '/../includes/header.php';
                             <span class="card__meta">They want to learn <?= e(implode(', ', $m['swap'])) ?>, which you teach.</span>
                         </p>
                     <?php endif; ?>
+
+                    <div class="btn-row match-card__actions">
+                        <a href="/pages/dashboard.php?new=<?= (int) $t['user_skill_id'] ?>" class="btn btn--primary btn--sm">Request session<span class="visually-hidden"> with <?= e($t['name']) ?> for <?= e($m['skill_name']) ?></span></a>
+                    </div>
                 </li>
             <?php endforeach; ?>
         </ol>
