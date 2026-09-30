@@ -24,7 +24,14 @@
  * decline it. The UPDATE itself is guarded (request_id + receiver_id +
  * status = 'pending'), so a forged, repeated or stale action changes
  * nothing. A request whose proposed time has already passed can only be
- * declined. Cancel/complete (SB-029) is the next card.
+ * declined.
+ *
+ * SB-029 / FR-08: either participant (sender or receiver) of an
+ * ACCEPTED request can cancel it, or mark it completed once its proposed
+ * time has passed. Completing sets the request to 'completed' and
+ * inserts exactly one `sessions` row, inside one transaction (the
+ * UNIQUE key on sessions.request_id is the backstop). Reviews (SB-030)
+ * are only possible against that sessions row.
  */
 require_once __DIR__ . '/../includes/auth.php';
 require_login();
@@ -188,6 +195,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'respo
 }
 
 /* ------------------------------------------------------------------ */
+/* Cancel / complete an accepted request (POST)                         */
+/* ------------------------------------------------------------------ */
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'close') {
+    $requestId = filter_var($_POST['request_id'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+    $change    = (string) ($_POST['change'] ?? '');
+    $back      = '/pages/dashboard.php' . (($_POST['from'] ?? '') === 'outgoing' ? '#outgoing' : '#incoming');
+
+    if (!csrf_valid()) {
+        $_SESSION['flash_error'] = 'Your session expired. Please try again.';
+        redirect($back);
+    }
+    if ($requestId === false || !valid_enum($change, ['cancel', 'complete'])) {
+        $_SESSION['flash_error'] = 'That action was not valid.';
+        redirect($back);
+    }
+
+    // Only a participant can act: sender OR receiver.
+    $find = $pdo->prepare(
+        'SELECT r.request_id, r.proposed_time, r.status, r.sender_id, s.name AS skill_name,
+                CASE WHEN r.sender_id = :me1 THEN rcv.name ELSE snd.name END AS other_name
+         FROM session_requests r
+         JOIN skills s  ON s.skill_id  = r.skill_id
+         JOIN users snd ON snd.user_id = r.sender_id
+         JOIN users rcv ON rcv.user_id = r.receiver_id
+         WHERE r.request_id = :id AND (r.sender_id = :me2 OR r.receiver_id = :me3)
+         LIMIT 1'
+    );
+    $find->execute(['id' => $requestId, 'me1' => $userId, 'me2' => $userId, 'me3' => $userId]);
+    $req = $find->fetch();
+
+    if (!$req) {
+        $_SESSION['flash_error'] = 'That request could not be found.';
+    } elseif ($req['status'] !== 'accepted') {
+        $_SESSION['flash_error'] = 'Only accepted sessions can be ' . ($change === 'cancel' ? 'cancelled' : 'completed')
+            . '. This one is ' . $req['status'] . '.';
+    } elseif ($change === 'complete' && new DateTimeImmutable($req['proposed_time']) > new DateTimeImmutable('now')) {
+        $_SESSION['flash_error'] = 'You can mark this session completed after its scheduled time.';
+    } elseif ($change === 'cancel') {
+        $update = $pdo->prepare(
+            'UPDATE session_requests SET status = \'cancelled\'
+             WHERE request_id = :id AND status = \'accepted\'
+               AND (sender_id = :me1 OR receiver_id = :me2)'
+        );
+        $update->execute(['id' => $requestId, 'me1' => $userId, 'me2' => $userId]);
+        $_SESSION[$update->rowCount() === 1 ? 'flash_success' : 'flash_error'] = $update->rowCount() === 1
+            ? 'Your ' . $req['skill_name'] . ' session with ' . $req['other_name'] . ' was cancelled.'
+            : 'That session changed before your update was saved. Please check it again.';
+    } else {
+        // Complete: status change + sessions row succeed or fail together.
+        try {
+            $pdo->beginTransaction();
+            $update = $pdo->prepare(
+                'UPDATE session_requests SET status = \'completed\'
+                 WHERE request_id = :id AND status = \'accepted\'
+                   AND (sender_id = :me1 OR receiver_id = :me2)'
+            );
+            $update->execute(['id' => $requestId, 'me1' => $userId, 'me2' => $userId]);
+
+            if ($update->rowCount() !== 1) {
+                $pdo->rollBack();
+                $_SESSION['flash_error'] = 'That session changed before your update was saved. Please check it again.';
+            } else {
+                $pdo->prepare('INSERT INTO sessions (request_id) VALUES (:id)')->execute(['id' => $requestId]);
+                $pdo->commit();
+                $_SESSION['flash_success'] = 'Marked your ' . $req['skill_name'] . ' session with ' . $req['other_name'] . ' as completed.';
+            }
+        } catch (PDOException $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            error_log('Complete session failed: ' . $e->getMessage());
+            $_SESSION['flash_error'] = 'Something went wrong saving that. Please try again.';
+        }
+    }
+    redirect($back);
+}
+
+/* ------------------------------------------------------------------ */
 /* Load incoming + outgoing requests                                    */
 /* ------------------------------------------------------------------ */
 
@@ -195,9 +281,11 @@ $statusOrder = 'FIELD(r.status, \'pending\', \'accepted\', \'completed\', \'decl
 
 $incomingStmt = $pdo->prepare(
     'SELECT r.request_id, r.goal, r.proposed_time, r.status, r.created_at,
-            s.name AS skill_name, u.name AS other_name, u.campus AS other_campus
+            s.name AS skill_name, u.name AS other_name, u.campus AS other_campus,
+            ses.completed_at
      FROM session_requests r
      JOIN skills s ON s.skill_id = r.skill_id
+     LEFT JOIN sessions ses ON ses.request_id = r.request_id
      JOIN users  u ON u.user_id  = r.sender_id
      WHERE r.receiver_id = :me
      ORDER BY ' . $statusOrder . ', r.proposed_time ASC'
@@ -207,9 +295,11 @@ $incoming = $incomingStmt->fetchAll();
 
 $outgoingStmt = $pdo->prepare(
     'SELECT r.request_id, r.goal, r.proposed_time, r.status, r.created_at,
-            s.name AS skill_name, u.name AS other_name, u.campus AS other_campus
+            s.name AS skill_name, u.name AS other_name, u.campus AS other_campus,
+            ses.completed_at
      FROM session_requests r
      JOIN skills s ON s.skill_id = r.skill_id
+     LEFT JOIN sessions ses ON ses.request_id = r.request_id
      JOIN users  u ON u.user_id  = r.receiver_id
      WHERE r.sender_id = :me
      ORDER BY ' . $statusOrder . ', r.proposed_time ASC'
@@ -268,7 +358,27 @@ function render_request(array $r, string $direction): void
         <?php elseif ($r['status'] === 'pending'): ?>
             <p class="request-card__note">Waiting for <?= e($r['other_name']) ?> to reply.</p>
         <?php elseif ($r['status'] === 'accepted'): ?>
-            <p class="request-card__note request-card__note--ok">Confirmed. Meet at the time above.</p>
+            <?php $isPast = $when <= new DateTimeImmutable('now'); ?>
+            <p class="request-card__note request-card__note--ok">
+                <?= $isPast ? 'Did the session happen? Mark it completed so you can both leave a review.' : 'Confirmed. Meet at the time above.' ?>
+            </p>
+            <form method="post" action="/pages/dashboard.php" class="btn-row request-card__actions">
+                <?= csrf_field() ?>
+                <input type="hidden" name="action" value="close">
+                <input type="hidden" name="from" value="<?= e($direction) ?>">
+                <input type="hidden" name="request_id" value="<?= (int) $r['request_id'] ?>">
+                <?php if ($isPast): ?>
+                    <button type="submit" name="change" value="complete" class="btn btn--primary btn--sm">Mark as completed<span class="visually-hidden">: <?= e($r['skill_name']) ?> with <?= e($r['other_name']) ?></span></button>
+                <?php else: ?>
+                    <span class="card__meta">You can mark it completed after the session time.</span>
+                <?php endif; ?>
+                <button type="submit" name="change" value="cancel" class="btn btn--danger btn--sm"
+                        data-confirm="Cancel your <?= e($r['skill_name']) ?> session with <?= e($r['other_name']) ?>? This can't be undone.">Cancel session<span class="visually-hidden">: <?= e($r['skill_name']) ?> with <?= e($r['other_name']) ?></span></button>
+            </form>
+        <?php elseif ($r['status'] === 'completed'): ?>
+            <p class="request-card__note request-card__note--ok">
+                Completed<?= !empty($r['completed_at']) ? ' on ' . e((new DateTimeImmutable($r['completed_at']))->format('j M Y')) : '' ?>.
+            </p>
         <?php endif; ?>
     </li>
     <?php

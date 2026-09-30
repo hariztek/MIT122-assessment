@@ -47,3 +47,27 @@ FROM (
 ) AS x
 JOIN users  u ON u.email = x.email
 JOIN skills s ON s.name  = x.skill;
+
+-- Demo session history (SB-029/030), dated relative to when the seed is run
+-- so the demo always has something to act on:
+--   1. Marco -> Priya, Python: ACCEPTED, time already passed (shows "Mark as completed").
+--   2. Lena  -> Priya, Python: COMPLETED with a sessions row (ready for reviews).
+-- Guarded by the goal text so re-running doesn't duplicate them.
+INSERT INTO session_requests (sender_id, receiver_id, skill_id, goal, proposed_time, status)
+SELECT snd.user_id, rcv.user_id, s.skill_id, x.goal, NOW() - INTERVAL x.days_ago DAY, x.status
+FROM (
+    SELECT 'marco@example.test' AS sender, 'priya@example.test' AS receiver, 'Python' AS skill,
+           'Get started with Python for my data unit' AS goal, 1 AS days_ago, 'accepted' AS status
+    UNION ALL
+    SELECT 'lena@example.test', 'priya@example.test', 'Python',
+           'Write a script to rename my design exports', 4, 'completed'
+) AS x
+JOIN users  snd ON snd.email = x.sender
+JOIN users  rcv ON rcv.email = x.receiver
+JOIN skills s   ON s.name    = x.skill
+WHERE NOT EXISTS (SELECT 1 FROM session_requests r WHERE r.goal = x.goal);
+
+INSERT IGNORE INTO sessions (request_id, completed_at)
+SELECT r.request_id, r.proposed_time + INTERVAL 2 HOUR
+FROM session_requests r
+WHERE r.status = 'completed' AND r.goal = 'Write a script to rename my design exports';

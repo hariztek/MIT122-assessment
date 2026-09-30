@@ -157,7 +157,7 @@ Almost all cards start in **To Do**. `SB-001`, `SB-002`, and `SB-003` are alread
 | SB-026 | Send session request with goal + proposed time (FR-07) | Testing | Must | 7 | M | SB-023 |
 | SB-027 | `dashboard.php` — incoming/outgoing request lists | Testing | Must | 7 | M | SB-026 |
 | SB-028 | Accept/decline a pending request (FR-08) | Testing | Must | 7 | M | SB-026, SB-027 |
-| SB-029 | Cancel/complete an authorised request → creates `sessions` row (FR-08) | To Do | Must | 7 | M | SB-028 |
+| SB-029 | Cancel/complete an authorised request → creates `sessions` row (FR-08) | Testing | Must | 7 | M | SB-028 |
 | SB-030 | Review allowed only after shared completed session (FR-09) | To Do | Must | 8 | M | SB-029 |
 | SB-031 | Dashboard: show reviews left/received | To Do | Should | 8 | S | SB-030 |
 | SB-032 | `admin.php` — role-restricted access guard | Testing | Must | 8 | S | SB-014 |

@@ -2204,7 +2204,7 @@ html {
 .request-card {
     background-color: var(--color-surface-container);
     border-radius: var(--radius-lg);
-    border-left: 4px solid var(--color-outline-variant);
+    border-left: 4px solid var(--color-outline);
     padding: var(--space-md);
     transition: background-color 0.2s ease, transform 0.2s ease;
 }
@@ -2214,11 +2214,22 @@ html {
     transform: translateX(3px);
 }
 
+/* Status strip in the bright status colours so it clears 3:1 contrast
+   against the card (error-container was ~1.4:1). */
 .request-card--pending   { border-left-color: var(--color-primary); }
 .request-card--accepted,
 .request-card--completed { border-left-color: var(--color-tertiary); }
 .request-card--declined,
-.request-card--cancelled { border-left-color: var(--color-error-container); opacity: 0.8; }
+.request-card--cancelled { border-left-color: var(--color-error); }
+
+/* Closed requests read as secondary without fading the whole card
+   (the old opacity also dimmed the status chip). */
+.request-card--declined .card__title,
+.request-card--cancelled .card__title,
+.request-card--declined .request-card__goal,
+.request-card--cancelled .request-card__goal {
+    color: var(--color-on-surface-variant);
+}
 
 .request-card__head {
     display: flex;
