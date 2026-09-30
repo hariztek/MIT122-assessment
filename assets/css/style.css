@@ -2487,3 +2487,20 @@ input[type="datetime-local"] {
     color: var(--color-error);
     font-weight: 600;
 }
+
+/* Admin section tabs + review comment column (SB-035) */
+.admin-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-base);
+    margin-bottom: var(--space-md);
+}
+
+.admin-tabs .filter-chip.is-active .card__meta {
+    color: var(--color-on-primary);
+}
+
+.admin-table__comment {
+    max-width: 320px;
+    color: var(--color-on-surface-variant);
+}

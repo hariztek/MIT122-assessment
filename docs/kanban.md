@@ -163,7 +163,7 @@ Almost all cards start in **To Do**. `SB-001`, `SB-002`, and `SB-003` are alread
 | SB-032 | `admin.php` — role-restricted access guard | Testing | Must | 8 | S | SB-014 |
 | SB-033 | Admin: moderate user accounts (FR-10) | Testing | Must | 8 | M | SB-032 |
 | SB-034 | Admin: moderate individual skill listings *(raised from Could: FR-10 names skills)* | To Do | Must | 8 | S | SB-032, SB-019 |
-| SB-035 | Admin: hide inappropriate reviews (FR-10) *(raised from Should: FR-10 names reviews)* | To Do | Must | 8 | S | SB-032, SB-030 |
+| SB-035 | Admin: hide inappropriate reviews (FR-10) *(raised from Should: FR-10 names reviews)* | Testing | Must | 8 | S | SB-032, SB-030 |
 | SB-036 | End-to-end manual test pass, all 8 pages | To Do | Must | 9 | L | SB-035 |
 | SB-037 | Responsive / cross-browser check | To Do | Must | 9 | M | SB-036 |
 | SB-038 | Security pass — parameterised queries, session checks, hashing on every write path | To Do | Must | 9 | M | SB-036 |
