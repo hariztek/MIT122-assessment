@@ -129,7 +129,7 @@ Almost all cards start in **To Do**. `SB-001`, `SB-002`, and `SB-003` are alread
 
 | ID | Title | Status | Priority | Week | Est. | Depends on |
 |---|---|---|---|---|---|---|
-| SB-001 | Create public GitHub repository | Done | Must | 4 | S | — |
+| SB-001 | Create public GitHub repository *(exists; still private until submission week)* | Done | Must | 4 | S | — |
 | SB-002 | Scaffold project structure (`index.php`, `pages/`, `includes/`, `assets/`, `database/`, `docs/`) | Done | Must | 4 | S | SB-001 |
 | SB-003 | Install/verify local MAMP (Apache + PHP + MySQL) | Done | Must | 4 | S | — |
 | SB-004 | Create MySQL database, import `schema.sql` | Done | Must | 4 | S | SB-005, SB-003 |
@@ -158,12 +158,12 @@ Almost all cards start in **To Do**. `SB-001`, `SB-002`, and `SB-003` are alread
 | SB-027 | `dashboard.php` — incoming/outgoing request lists | Testing | Must | 7 | M | SB-026 |
 | SB-028 | Accept/decline a pending request (FR-08) | Testing | Must | 7 | M | SB-026, SB-027 |
 | SB-029 | Cancel/complete an authorised request → creates `sessions` row (FR-08) | Testing | Must | 7 | M | SB-028 |
-| SB-030 | Review allowed only after shared completed session (FR-09) | To Do | Must | 8 | M | SB-029 |
+| SB-030 | Review allowed only after shared completed session (FR-09) | Testing | Must | 8 | M | SB-029 |
 | SB-031 | Dashboard: show reviews left/received | To Do | Should | 8 | S | SB-030 |
 | SB-032 | `admin.php` — role-restricted access guard | Testing | Must | 8 | S | SB-014 |
 | SB-033 | Admin: moderate user accounts (FR-10) | Testing | Must | 8 | M | SB-032 |
-| SB-034 | Admin: moderate individual skill listings | To Do | Could | 8 | S | SB-032, SB-019 |
-| SB-035 | Admin: hide inappropriate reviews (FR-10) | To Do | Should | 8 | S | SB-032, SB-030 |
+| SB-034 | Admin: moderate individual skill listings *(raised from Could: FR-10 names skills)* | To Do | Must | 8 | S | SB-032, SB-019 |
+| SB-035 | Admin: hide inappropriate reviews (FR-10) *(raised from Should: FR-10 names reviews)* | To Do | Must | 8 | S | SB-032, SB-030 |
 | SB-036 | End-to-end manual test pass, all 8 pages | To Do | Must | 9 | L | SB-035 |
 | SB-037 | Responsive / cross-browser check | To Do | Must | 9 | M | SB-036 |
 | SB-038 | Security pass — parameterised queries, session checks, hashing on every write path | To Do | Must | 9 | M | SB-036 |
@@ -173,7 +173,7 @@ Almost all cards start in **To Do**. `SB-001`, `SB-002`, and `SB-003` are alread
 | SB-042 | Sync planning docs if scope changed during build | To Do | Could | 11 | S | SB-039 |
 | SB-043 | Final rehearsal + demo script | To Do | Must | 12 | M | SB-040, SB-041 |
 | SB-044 | Final commit/tag + submission packaging | To Do | Must | 12 | S | SB-043 |
-| SB-045 | *(Optional, only if ahead of schedule)* `availability` table — structured day/time slots | To Do | Could | 6 | M | SB-005 |
+| SB-045 | *(Optional, only if ahead of schedule)* `availability` table — structured day/time slots *(dropped 2026-09-30: matching parses free-text availability instead, see DECISIONS)* | To Do | Could | 6 | M | SB-005 |
 | SB-046 | *(Optional, only if ahead of schedule)* `reports` table — user-submitted moderation reports | To Do | Could | 8 | M | SB-005, SB-032 |
 
 ### Acceptance criteria per card

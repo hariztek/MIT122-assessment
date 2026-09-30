@@ -32,6 +32,14 @@
  * inserts exactly one `sessions` row, inside one transaction (the
  * UNIQUE key on sessions.request_id is the backstop). Reviews (SB-030)
  * are only possible against that sessions row.
+ *
+ * SB-030 / FR-09: after a completed session, each participant can leave
+ * ONE review (rating 1–5, optional comment) of the other. The form opens
+ * via ?review=<session_id>; on submit the server re-derives everything
+ * from the database: the session exists, its request is 'completed', the
+ * reviewer took part, the reviewee is the OTHER participant (never
+ * self), and no review by this reviewer exists yet (UNIQUE
+ * (session_id, reviewer_id) is the backstop).
  */
 require_once __DIR__ . '/../includes/auth.php';
 require_login();
@@ -65,6 +73,95 @@ function find_bookable_offer(PDO $pdo, int $userSkillId, int $me): ?array
     );
     $stmt->execute(['id' => $userSkillId, 'me' => $me]);
     return $stmt->fetch() ?: null;
+}
+
+/**
+ * Load a session this user may review, or null. Returns the other
+ * participant as the reviewee, so the form never supplies who is
+ * being reviewed.
+ *
+ * @return array<string,mixed>|null
+ */
+function find_reviewable_session(PDO $pdo, int $sessionId, int $me): ?array
+{
+    $stmt = $pdo->prepare(
+        'SELECT ses.session_id, s.name AS skill_name,
+                CASE WHEN r.sender_id = :me1 THEN r.receiver_id ELSE r.sender_id END AS reviewee_id,
+                CASE WHEN r.sender_id = :me2 THEN rcv.name ELSE snd.name END AS reviewee_name,
+                (SELECT COUNT(*) FROM reviews rv
+                  WHERE rv.session_id = ses.session_id AND rv.reviewer_id = :me3) AS already
+         FROM sessions ses
+         JOIN session_requests r ON r.request_id = ses.request_id
+         JOIN skills s           ON s.skill_id   = r.skill_id
+         JOIN users snd          ON snd.user_id  = r.sender_id
+         JOIN users rcv          ON rcv.user_id  = r.receiver_id
+         WHERE ses.session_id = :id
+           AND r.status = \'completed\'
+           AND (r.sender_id = :me4 OR r.receiver_id = :me5)
+         LIMIT 1'
+    );
+    $stmt->execute(['id' => $sessionId, 'me1' => $me, 'me2' => $me, 'me3' => $me, 'me4' => $me, 'me5' => $me]);
+    $row = $stmt->fetch();
+    return ($row && (int) $row['already'] === 0) ? $row : null;
+}
+
+/* ------------------------------------------------------------------ */
+/* Leave a review (SB-030)                                              */
+/* ------------------------------------------------------------------ */
+
+const REVIEW_COMMENT_MAX = 1000;
+
+$reviewing    = null;
+$reviewErrors = [];
+$reviewValues = ['rating' => '', 'comment' => ''];
+
+$reviewId = filter_var($_POST['session_id'] ?? $_GET['review'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+if ($reviewId !== false) {
+    $reviewing = find_reviewable_session($pdo, $reviewId, $userId);
+    if ($reviewing === null) {
+        $_SESSION['flash_error'] = 'You can only review a completed session you took part in, once.';
+        redirect('/pages/dashboard.php');
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'review' && $reviewing !== null) {
+    $reviewValues['rating']  = (string) ($_POST['rating'] ?? '');
+    $reviewValues['comment'] = trim((string) ($_POST['comment'] ?? ''));
+    $rating = filter_var($reviewValues['rating'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 5]]);
+
+    if (!csrf_valid()) {
+        $reviewErrors['form'] = 'Your session expired. Please submit the review again.';
+    }
+    if ($rating === false) {
+        $reviewErrors['rating'] = 'Choose a rating from 1 to 5 stars.';
+    }
+    if (!valid_length($reviewValues['comment'], 0, REVIEW_COMMENT_MAX)) {
+        $reviewErrors['comment'] = 'Keep your comment to ' . REVIEW_COMMENT_MAX . ' characters or fewer.';
+    }
+
+    if ($reviewErrors === []) {
+        try {
+            $insert = $pdo->prepare(
+                'INSERT INTO reviews (session_id, reviewer_id, reviewee_id, rating, comment)
+                 VALUES (:session, :reviewer, :reviewee, :rating, :comment)'
+            );
+            $insert->execute([
+                'session'  => $reviewing['session_id'],
+                'reviewer' => $userId,
+                'reviewee' => $reviewing['reviewee_id'],
+                'rating'   => $rating,
+                'comment'  => $reviewValues['comment'] === '' ? null : $reviewValues['comment'],
+            ]);
+            $_SESSION['flash_success'] = 'Thanks! Your review of ' . $reviewing['reviewee_name'] . ' was saved.';
+        } catch (PDOException $e) {
+            // 23000 = the UNIQUE (session_id, reviewer_id) key: a double submit.
+            if ($e->getCode() !== '23000') {
+                throw $e;
+            }
+            $_SESSION['flash_error'] = 'You have already reviewed this session.';
+        }
+        redirect('/pages/dashboard.php');
+    }
 }
 
 /* ------------------------------------------------------------------ */
@@ -282,29 +379,31 @@ $statusOrder = 'FIELD(r.status, \'pending\', \'accepted\', \'completed\', \'decl
 $incomingStmt = $pdo->prepare(
     'SELECT r.request_id, r.goal, r.proposed_time, r.status, r.created_at,
             s.name AS skill_name, u.name AS other_name, u.campus AS other_campus,
-            ses.completed_at
+            ses.completed_at, ses.session_id, myrev.rating AS my_rating
      FROM session_requests r
      JOIN skills s ON s.skill_id = r.skill_id
      LEFT JOIN sessions ses ON ses.request_id = r.request_id
+     LEFT JOIN reviews myrev ON myrev.session_id = ses.session_id AND myrev.reviewer_id = :me_rev
      JOIN users  u ON u.user_id  = r.sender_id
      WHERE r.receiver_id = :me
      ORDER BY ' . $statusOrder . ', r.proposed_time ASC'
 );
-$incomingStmt->execute(['me' => $userId]);
+$incomingStmt->execute(['me' => $userId, 'me_rev' => $userId]);
 $incoming = $incomingStmt->fetchAll();
 
 $outgoingStmt = $pdo->prepare(
     'SELECT r.request_id, r.goal, r.proposed_time, r.status, r.created_at,
             s.name AS skill_name, u.name AS other_name, u.campus AS other_campus,
-            ses.completed_at
+            ses.completed_at, ses.session_id, myrev.rating AS my_rating
      FROM session_requests r
      JOIN skills s ON s.skill_id = r.skill_id
      LEFT JOIN sessions ses ON ses.request_id = r.request_id
+     LEFT JOIN reviews myrev ON myrev.session_id = ses.session_id AND myrev.reviewer_id = :me_rev
      JOIN users  u ON u.user_id  = r.receiver_id
      WHERE r.sender_id = :me
      ORDER BY ' . $statusOrder . ', r.proposed_time ASC'
 );
-$outgoingStmt->execute(['me' => $userId]);
+$outgoingStmt->execute(['me' => $userId, 'me_rev' => $userId]);
 $outgoing = $outgoingStmt->fetchAll();
 
 $pendingIncoming = count(array_filter($incoming, static fn ($r) => $r['status'] === 'pending'));
@@ -379,6 +478,16 @@ function render_request(array $r, string $direction): void
             <p class="request-card__note request-card__note--ok">
                 Completed<?= !empty($r['completed_at']) ? ' on ' . e((new DateTimeImmutable($r['completed_at']))->format('j M Y')) : '' ?>.
             </p>
+            <?php if (!empty($r['session_id'])): ?>
+                <div class="btn-row request-card__actions">
+                    <?php if ($r['my_rating'] === null): ?>
+                        <a href="/pages/dashboard.php?review=<?= (int) $r['session_id'] ?>#review" class="btn btn--primary btn--sm">Leave a review<span class="visually-hidden"> for <?= e($r['other_name']) ?></span></a>
+                    <?php else: ?>
+                        <span class="card__meta">You rated <?= e($r['other_name']) ?></span>
+                        <span class="stars" role="img" aria-label="<?= (int) $r['my_rating'] ?> out of 5 stars"><?= str_repeat('★', (int) $r['my_rating']) ?><span class="stars__off"><?= str_repeat('★', 5 - (int) $r['my_rating']) ?></span></span>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
         <?php endif; ?>
     </li>
     <?php
@@ -398,6 +507,53 @@ require_once __DIR__ . '/../includes/header.php';
     <h1 class="headline-lg">Your sessions</h1>
     <p class="page-header__lede">Requests other students sent you, and requests you've sent.</p>
 </div>
+
+<?php if ($reviewing !== null): ?>
+    <section class="request-form-panel" id="review" aria-labelledby="review-heading">
+        <p class="label-md landing-eyebrow">Review</p>
+        <h2 class="headline-md" id="review-heading">How was your <?= e($reviewing['skill_name']) ?> session with <?= e($reviewing['reviewee_name']) ?>?</h2>
+        <p class="card__meta request-form-panel__meta">You can leave one review per session. <?= e($reviewing['reviewee_name']) ?> will see it.</p>
+
+        <?php if (isset($reviewErrors['form'])): ?>
+            <div class="form-error-summary" role="alert"><?= e($reviewErrors['form']) ?></div>
+        <?php endif; ?>
+
+        <form method="post" action="/pages/dashboard.php#review" novalidate>
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="review">
+            <input type="hidden" name="session_id" value="<?= (int) $reviewing['session_id'] ?>">
+
+            <fieldset class="field star-input"<?= isset($reviewErrors['rating']) ? ' aria-describedby="rating-error"' : '' ?>>
+                <legend>Rating</legend>
+                <div class="star-input__row">
+                    <?php for ($i = 5; $i >= 1; $i--): ?>
+                        <input type="radio" id="rating-<?= $i ?>" name="rating" value="<?= $i ?>" required
+                               <?= $reviewValues['rating'] === (string) $i ? 'checked' : '' ?>>
+                        <label for="rating-<?= $i ?>" title="<?= $i ?> star<?= $i > 1 ? 's' : '' ?>"><span aria-hidden="true">★</span><span class="visually-hidden"><?= $i ?> star<?= $i > 1 ? 's' : '' ?></span></label>
+                    <?php endfor; ?>
+                </div>
+                <?php if (isset($reviewErrors['rating'])): ?>
+                    <p class="field-error" id="rating-error"><?= e($reviewErrors['rating']) ?></p>
+                <?php endif; ?>
+            </fieldset>
+
+            <div class="field">
+                <label for="comment">Comment <span class="card__meta">(optional)</span></label>
+                <textarea id="comment" name="comment" rows="3" maxlength="<?= REVIEW_COMMENT_MAX ?>"
+                          placeholder="What went well? Anything they could improve?"
+                          <?= isset($reviewErrors['comment']) ? 'aria-invalid="true" aria-describedby="comment-error"' : '' ?>><?= e($reviewValues['comment']) ?></textarea>
+                <?php if (isset($reviewErrors['comment'])): ?>
+                    <p class="field-error" id="comment-error"><?= e($reviewErrors['comment']) ?></p>
+                <?php endif; ?>
+            </div>
+
+            <div class="btn-row">
+                <button type="submit" class="btn btn--primary">Submit review</button>
+                <a href="/pages/dashboard.php" class="btn btn--tertiary">Cancel</a>
+            </div>
+        </form>
+    </section>
+<?php endif; ?>
 
 <?php if ($offer !== null): ?>
     <section class="request-form-panel" aria-labelledby="request-heading">

@@ -2320,3 +2320,71 @@ input[type="datetime-local"] {
 .request-card__note--ok {
     color: var(--color-tertiary);
 }
+
+/* ------------------------------------------------------------------ */
+/* Reviews (SB-030): star display + star rating input                   */
+/* ------------------------------------------------------------------ */
+
+.stars {
+    color: var(--color-primary);
+    letter-spacing: 2px;
+    font-size: 16px;
+}
+
+.stars__off {
+    color: var(--color-surface-container-highest);
+}
+
+.star-input {
+    border: none;
+    padding: 0;
+    margin: 0 0 var(--space-md);
+}
+
+.star-input legend {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--color-on-surface-variant);
+    margin-bottom: var(--space-xs);
+    padding: 0;
+}
+
+/* Radios are listed 5→1 and displayed reversed, so "this star and every
+   star before it" can be lit with the ~ sibling selector. */
+.star-input__row {
+    display: inline-flex;
+    flex-direction: row-reverse;
+    gap: 4px;
+}
+
+.star-input__row input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+
+.star-input__row label {
+    margin: 0;
+    font-size: 34px;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--color-surface-container-highest);
+    transition: color 0.15s ease, transform 0.15s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+.star-input__row label:hover,
+.star-input__row label:hover ~ label,
+.star-input__row input:checked ~ label {
+    color: var(--color-primary);
+}
+
+.star-input__row label:hover {
+    transform: scale(1.18);
+}
+
+.star-input__row input:focus-visible + label {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
