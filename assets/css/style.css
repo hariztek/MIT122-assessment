@@ -2504,3 +2504,461 @@ input[type="datetime-local"] {
     max-width: 320px;
     color: var(--color-on-surface-variant);
 }
+
+/* ------------------------------------------------------------------ */
+/* Account menu: avatar + first name, dropdown with Profile/Admin/Log   */
+/* out. Desktop = dropdown; mobile overlay = always-open account block; */
+/* no JS = links shown inline.                                          */
+/* ------------------------------------------------------------------ */
+
+.avatar {
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1;
+}
+
+.avatar--lg {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+}
+
+.account-menu {
+    position: relative;
+}
+
+.account-menu__trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-base);
+    min-height: 44px;
+    padding: 4px 10px 4px 4px;
+    border-radius: var(--radius-full);
+    border: 1.5px solid var(--color-outline-variant);
+    background-color: var(--color-surface-container);
+    color: var(--color-on-surface);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.account-menu__trigger:hover,
+.account-menu.is-open .account-menu__trigger {
+    border-color: var(--color-outline);
+    background-color: var(--color-surface-container-high);
+}
+
+.account-menu__trigger[data-active] {
+    border-color: var(--color-primary);
+}
+
+.account-menu__trigger:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+}
+
+.account-menu__caret {
+    color: var(--color-on-surface-variant);
+    transition: transform 0.25s ease;
+}
+
+.account-menu.is-open .account-menu__caret {
+    transform: rotate(180deg);
+}
+
+.account-menu__panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-base);
+}
+
+.account-menu__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.account-menu__header p {
+    margin: 0;
+}
+
+.account-menu__fullname {
+    font-family: var(--font-headline);
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--color-on-surface);
+}
+
+.account-menu__email {
+    font-size: 13px;
+    color: var(--color-on-surface-variant);
+    word-break: break-all;
+}
+
+.account-menu__logout {
+    color: var(--color-error) !important;
+}
+
+/* With JS: the trigger shows and the panel becomes a dropdown. */
+.js .account-menu__panel {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    z-index: 40;
+    min-width: 250px;
+    padding: var(--space-sm);
+    gap: 2px;
+    background-color: var(--color-surface-container-high);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px) scale(0.98);
+    transform-origin: top right;
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0.18s;
+}
+
+.js .account-menu.is-open .account-menu__panel {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s;
+}
+
+.js .account-menu__header {
+    padding: var(--space-xs) var(--space-xs) var(--space-sm);
+    margin-bottom: var(--space-xs);
+    border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.js .account-menu__panel > a {
+    display: block;
+    padding: 10px var(--space-sm);
+    border-radius: var(--radius-md);
+    color: var(--color-on-surface);
+}
+
+.js .account-menu__panel > a::after {
+    display: none;
+}
+
+.js .account-menu__panel > a:hover,
+.js .account-menu__panel > a:focus-visible {
+    background-color: var(--color-surface-container-highest);
+    text-decoration: none;
+    outline: none;
+}
+
+.js .account-menu__panel > a.site-nav__link--active {
+    color: var(--color-primary);
+}
+
+/* Without JS: no trigger, links sit inline in the nav. */
+html:not(.js) .account-menu__trigger,
+html:not(.js) .account-menu__header {
+    display: none;
+}
+
+html:not(.js) .account-menu__panel {
+    flex-direction: row;
+    gap: var(--space-md);
+}
+
+/* Phone header avatar (next to the hamburger). */
+.header-avatar {
+    display: none;
+}
+
+.header-avatar:hover {
+    text-decoration: none;
+}
+
+@media (max-width: 899px) {
+    .js .header-avatar {
+        display: inline-grid;
+        margin-left: auto;
+        position: relative;
+        z-index: 30;
+    }
+
+    .js .site-header__inner {
+        gap: var(--space-sm);
+    }
+
+    /* Inside the full-screen menu the account block is always open. */
+    .js .account-menu {
+        width: 100%;
+        margin-top: var(--space-md);
+        padding-top: var(--space-md);
+        border-top: 1px solid var(--color-outline-variant);
+        opacity: 0;
+        transform: translateY(24px);
+        transition: opacity 0.4s ease 0.4s, transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) 0.4s;
+    }
+
+    .js.nav-open .account-menu {
+        opacity: 1;
+        transform: none;
+    }
+
+    .js .account-menu__trigger {
+        display: none;
+    }
+
+    .js .account-menu__panel {
+        position: static;
+        opacity: 1;
+        visibility: inherit;
+        transform: none;
+        min-width: 0;
+        padding: 0;
+        background: none;
+        border: none;
+        box-shadow: none;
+        gap: var(--space-xs);
+    }
+
+    .js .account-menu__header {
+        border-bottom: none;
+        padding: 0 0 var(--space-sm);
+    }
+
+    .js .account-menu__panel > a {
+        padding: 0;
+        font-family: var(--font-headline);
+        font-size: clamp(24px, 7vw, 32px);
+        font-weight: 700;
+    }
+
+    .js .account-menu__panel > a:hover,
+    .js .account-menu__panel > a:focus-visible {
+        background: none;
+        color: var(--color-primary);
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Desktop / large-screen layout                                        */
+/* Mobile-first rules above stay as they are; these only kick in on    */
+/* wider viewports so tablets, laptops and big monitors use the space. */
+/* ------------------------------------------------------------------ */
+
+/* Auth pages: side panel appears on desktop, form stays the focus. */
+.auth-aside {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .auth-shell {
+        display: grid;
+        grid-template-columns: minmax(380px, 460px) 1fr;
+        gap: var(--space-lg);
+        align-items: stretch;
+        max-width: 1100px;
+        margin-inline: auto;
+    }
+
+    .auth-shell .auth-layout {
+        max-width: none;
+        margin: 0;
+        align-self: center;
+    }
+
+    .auth-aside {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: var(--space-md);
+        padding: var(--space-lg);
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--color-outline-variant);
+        background-color: var(--color-surface-container-low);
+        overflow: hidden;
+        min-height: 560px;
+    }
+
+    .auth-aside > *:not(.auth-aside__blob) {
+        position: relative;
+        z-index: 1;
+    }
+
+    .auth-aside__blob {
+        top: auto;
+        bottom: -90px;
+        right: -70px;
+    }
+
+    .auth-aside__title {
+        margin: 0;
+    }
+
+    .auth-aside__points {
+        display: grid;
+        gap: var(--space-sm);
+        color: var(--color-on-surface-variant);
+    }
+
+    .auth-aside__points li {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+    }
+
+    .auth-aside__points .advantage__icon {
+        margin: 0;
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    .auth-aside__card {
+        align-self: flex-end;
+        margin-top: var(--space-sm);
+    }
+}
+
+/* Profile: "About you" becomes a sticky sidebar, skills fill the rest. */
+@media (min-width: 1024px) {
+    .profile {
+        max-width: none;
+        display: grid;
+        grid-template-columns: minmax(320px, 380px) 1fr;
+        column-gap: var(--space-lg);
+        align-items: start;
+    }
+
+    .profile > .page-header {
+        grid-column: 1 / -1;
+    }
+
+    .profile > .section:first-of-type {
+        grid-column: 1;
+        grid-row: 2 / span 2;
+        position: sticky;
+        top: 96px;
+    }
+
+    .profile > .section:not(:first-of-type) {
+        grid-column: 2;
+    }
+
+    .profile > .section:nth-of-type(2) {
+        margin-top: 0;
+    }
+
+    /* Narrow sidebar: stack the name/campus fields. */
+    .profile > .section:first-of-type .form-grid--2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Dashboard: keep the request/review form panels from stretching. */
+@media (min-width: 1024px) {
+    .request-form-panel {
+        max-width: 720px;
+    }
+}
+
+/* Large monitors: a little more air and bigger display type. */
+@media (min-width: 1280px) {
+    .site-main {
+        padding-block: var(--space-xl) var(--space-xl);
+    }
+
+    .headline-xl {
+        font-size: 56px;
+    }
+
+    .headline-lg {
+        font-size: 38px;
+    }
+
+    .page-header__lede {
+        font-size: 17px;
+        max-width: 60ch;
+    }
+
+    .match-list {
+        gap: var(--space-lg) var(--space-md);
+    }
+}
+
+@media (min-width: 1600px) {
+    .container {
+        max-width: 1440px;
+    }
+}
+
+/* Mobile menu account block: a compact card with pill buttons, so the
+   account actions read as actions rather than smaller nav links. */
+@media (max-width: 899px) {
+    .js .account-menu {
+        border-top: none;
+        padding-top: 0;
+        margin-top: var(--space-lg);
+    }
+
+    .js .account-menu__panel {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-sm);
+        padding: var(--space-md);
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--color-outline-variant);
+        background-color: var(--color-surface-container-low);
+    }
+
+    .js .account-menu__header {
+        flex-basis: 100%;
+        padding: 0 0 var(--space-xs);
+    }
+
+    .js .account-menu__panel > a {
+        flex: 1 1 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 10px 18px;
+        border-radius: var(--radius-full);
+        border: 1.5px solid var(--color-outline-variant);
+        font-family: var(--font-body);
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--color-on-surface);
+        transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .js .account-menu__panel > a:hover,
+    .js .account-menu__panel > a:focus-visible,
+    .js .account-menu__panel > a.site-nav__link--active {
+        background-color: var(--color-surface-container-high);
+        border-color: var(--color-primary);
+        color: var(--color-primary);
+    }
+
+    .js .account-menu__panel > a.account-menu__logout {
+        border-color: var(--color-error-container);
+        color: var(--color-error) !important;
+    }
+
+    .js .account-menu__panel > a.account-menu__logout:hover,
+    .js .account-menu__panel > a.account-menu__logout:focus-visible {
+        background-color: var(--color-error-container);
+        border-color: var(--color-error);
+    }
+}

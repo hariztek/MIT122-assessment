@@ -33,15 +33,33 @@ if (session_status() === PHP_SESSION_NONE) {
 $pageTitle  = $pageTitle ?? 'Student SkillBridge';
 $isLoggedIn = isset($_SESSION['user_id']);
 
-// Nav badge: incoming requests still waiting for this user's reply.
+// Logged-in account details for the account menu, read fresh from the
+// database so a renamed profile shows immediately, plus the nav badge
+// count of incoming requests still waiting for this user's reply.
 $pendingRequests = 0;
+$account         = null;
 if ($isLoggedIn) {
     require_once __DIR__ . '/db.php';
-    $pendingStmt = $pdo->prepare(
-        'SELECT COUNT(*) FROM session_requests WHERE receiver_id = :me AND status = \'pending\''
+    $accountStmt = $pdo->prepare(
+        'SELECT u.name, u.email, u.role,
+                (SELECT COUNT(*) FROM session_requests r
+                  WHERE r.receiver_id = u.user_id AND r.status = \'pending\') AS pending
+         FROM users u WHERE u.user_id = :me LIMIT 1'
     );
-    $pendingStmt->execute(['me' => (int) $_SESSION['user_id']]);
-    $pendingRequests = (int) $pendingStmt->fetchColumn();
+    $accountStmt->execute(['me' => (int) $_SESSION['user_id']]);
+    $account = $accountStmt->fetch() ?: null;
+    $pendingRequests = (int) ($account['pending'] ?? 0);
+}
+
+// Up to two initials for the avatar, e.g. "Priya Shah" -> "PS".
+$initials  = '';
+$firstName = '';
+if ($account) {
+    $parts     = preg_split('/\s+/', trim($account['name'])) ?: [];
+    $firstName = $parts[0] ?? '';
+    foreach (array_slice($parts, 0, 2) as $part) {
+        $initials .= mb_strtoupper(mb_substr($part, 0, 1));
+    }
 }
 $currentPage = basename($_SERVER['SCRIPT_NAME'] ?? '');
 
@@ -74,6 +92,13 @@ $navAttrs = static function (string $file) use ($currentPage): string {
             <span class="brand__text">Student<span class="brand__accent">SkillBridge</span></span>
         </a>
 
+        <?php if ($account): ?>
+            <?php // Phone-only: shows at a glance that you're logged in, links to your profile. ?>
+            <a href="/pages/profile.php" class="header-avatar avatar" title="<?= e($account['name']) ?>">
+                <span aria-hidden="true"><?= e($initials) ?></span><span class="visually-hidden">Your profile (<?= e($account['name']) ?>)</span>
+            </a>
+        <?php endif; ?>
+
         <button type="button" class="nav-toggle" aria-controls="site-nav" aria-expanded="false">
             <span class="nav-toggle__label">Menu</span>
             <span class="nav-toggle__bars" aria-hidden="true"><span></span><span></span><span></span></span>
@@ -81,16 +106,36 @@ $navAttrs = static function (string $file) use ($currentPage): string {
 
         <nav class="site-nav" id="site-nav" aria-label="Main navigation">
             <a href="/index.php" <?= $navAttrs('index.php') ?>>Home</a>
-            <a href="/pages/search.php" <?= $navAttrs('search.php') ?>>Search</a>
-            <a href="/pages/matches.php" <?= $navAttrs('matches.php') ?>>Matches</a>
-            <a href="/pages/dashboard.php" <?= $navAttrs('dashboard.php') ?>>Dashboard<?php if ($pendingRequests > 0): ?><span class="nav-badge" aria-hidden="true"><?= $pendingRequests > 9 ? '9+' : $pendingRequests ?></span><span class="visually-hidden"> (<?= $pendingRequests ?> new <?= $pendingRequests === 1 ? 'request' : 'requests' ?>)</span><?php endif; ?></a>
-            <a href="/pages/profile.php" <?= $navAttrs('profile.php') ?>>Profile</a>
-            <?php if (($_SESSION['user_role'] ?? null) === 'admin'): ?>
-                <a href="/pages/admin.php" <?= $navAttrs('admin.php') ?>>Admin</a>
-            <?php endif; ?>
 
-            <?php if ($isLoggedIn): ?>
-                <a href="/pages/login.php?action=logout" class="btn btn--secondary btn--sm">Log out</a>
+            <?php if ($account): ?>
+                <a href="/pages/search.php" <?= $navAttrs('search.php') ?>>Search</a>
+                <a href="/pages/matches.php" <?= $navAttrs('matches.php') ?>>Matches</a>
+                <a href="/pages/dashboard.php" <?= $navAttrs('dashboard.php') ?>>Dashboard<?php if ($pendingRequests > 0): ?><span class="nav-badge" aria-hidden="true"><?= $pendingRequests > 9 ? '9+' : $pendingRequests ?></span><span class="visually-hidden"> (<?= $pendingRequests ?> new <?= $pendingRequests === 1 ? 'request' : 'requests' ?>)</span><?php endif; ?></a>
+
+                <div class="account-menu">
+                    <button type="button" class="account-menu__trigger" aria-expanded="false" aria-controls="account-menu-panel"
+                            <?= in_array($currentPage, ['profile.php', 'admin.php'], true) ? 'data-active' : '' ?>>
+                        <span class="avatar" aria-hidden="true"><?= e($initials) ?></span>
+                        <span class="account-menu__name"><?= e($firstName) ?></span>
+                        <svg class="account-menu__caret" aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                        <span class="visually-hidden">Account menu</span>
+                    </button>
+                    <div class="account-menu__panel" id="account-menu-panel">
+                        <div class="account-menu__header">
+                            <span class="avatar avatar--lg" aria-hidden="true"><?= e($initials) ?></span>
+                            <div>
+                                <p class="account-menu__fullname"><?= e($account['name']) ?></p>
+                                <p class="account-menu__email"><?= e($account['email']) ?></p>
+                                <?php if ($account['role'] === 'admin'): ?><span class="chip chip--sm">Admin</span><?php endif; ?>
+                            </div>
+                        </div>
+                        <a href="/pages/profile.php" <?= $navAttrs('profile.php') ?>>Profile</a>
+                        <?php if ($account['role'] === 'admin'): ?>
+                            <a href="/pages/admin.php" <?= $navAttrs('admin.php') ?>>Admin</a>
+                        <?php endif; ?>
+                        <a href="/pages/login.php?action=logout" class="site-nav__link account-menu__logout">Log out</a>
+                    </div>
+                </div>
             <?php else: ?>
                 <a href="/pages/login.php" <?= $navAttrs('login.php') ?>>Log in</a>
                 <a href="/pages/register.php" class="btn btn--primary btn--sm">Sign up</a>

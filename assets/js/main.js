@@ -83,6 +83,72 @@
         });
     }
 
+    /* Account menu (avatar dropdown) ---------------------------------- */
+    // Desktop only in practice: in the full-screen mobile menu the panel
+    // is shown open by CSS. Without JS the panel's links render inline.
+
+    var accountTrigger = document.querySelector('.account-menu__trigger');
+    var accountPanel = document.getElementById('account-menu-panel');
+
+    function setAccountOpen(open, focusFirst) {
+        accountTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+        accountTrigger.parentElement.classList.toggle('is-open', open);
+        if (open && focusFirst) {
+            var first = accountPanel.querySelector('a');
+            if (first) {
+                first.focus();
+            }
+        }
+    }
+
+    if (accountTrigger && accountPanel) {
+        accountTrigger.addEventListener('click', function () {
+            setAccountOpen(accountTrigger.getAttribute('aria-expanded') !== 'true', false);
+        });
+
+        accountTrigger.addEventListener('keydown', function (e) {
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setAccountOpen(true, true);
+            }
+        });
+
+        accountPanel.addEventListener('keydown', function (e) {
+            var items = Array.prototype.slice.call(accountPanel.querySelectorAll('a'));
+            var i = items.indexOf(document.activeElement);
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                items[(i + 1) % items.length].focus();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                items[(i - 1 + items.length) % items.length].focus();
+            } else if (e.key === 'Escape') {
+                setAccountOpen(false, false);
+                accountTrigger.focus();
+            }
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!accountTrigger.parentElement.contains(e.target)) {
+                setAccountOpen(false, false);
+            }
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && accountTrigger.getAttribute('aria-expanded') === 'true') {
+                setAccountOpen(false, false);
+                accountTrigger.focus();
+            }
+        });
+
+        // Tabbing out of the menu closes it.
+        accountTrigger.parentElement.addEventListener('focusout', function (e) {
+            if (e.relatedTarget && !accountTrigger.parentElement.contains(e.relatedTarget)) {
+                setAccountOpen(false, false);
+            }
+        });
+    }
+
     /* Search filters -------------------------------------------------- */
     // Dropdowns marked data-autosubmit re-run the search when changed.
     // The Search button still works without JS.

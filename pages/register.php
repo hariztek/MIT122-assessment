@@ -110,6 +110,7 @@ $pageTitle = 'Create an account';
 require_once __DIR__ . '/../includes/header.php';
 ?>
 
+<div class="auth-shell">
 <div class="auth-layout">
     <?php if ($registered): ?>
         <div class="card">
@@ -210,6 +211,8 @@ require_once __DIR__ . '/../includes/header.php';
 
         <p class="auth-switch">Already have an account? <a href="/pages/login.php">Log in</a></p>
     <?php endif; ?>
+</div>
+<?php require __DIR__ . '/../includes/auth_aside.php'; ?>
 </div>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

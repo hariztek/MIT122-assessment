@@ -103,6 +103,7 @@ $pageTitle = 'Log in';
 require_once __DIR__ . '/../includes/header.php';
 ?>
 
+<div class="auth-shell">
 <div class="auth-layout">
     <div class="card">
             <h1 class="headline-lg">Log in</h1>
@@ -164,6 +165,8 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
 
         <p class="auth-switch">New here? <a href="/pages/register.php">Create an account</a></p>
+</div>
+<?php require __DIR__ . '/../includes/auth_aside.php'; ?>
 </div>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
