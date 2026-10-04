@@ -16,6 +16,12 @@
  * its writer sees it marked "Hidden by an admin". Nothing is deleted, so
  * a mistaken hide can be undone.
  *
+ * SB-034 (FR-10): admins can hide or restore individual skill listings
+ * (?view=skills). A hidden listing drops out of search, matches and new
+ * requests (they all filter on user_skills.status = 'active'); its owner
+ * still sees it on their profile, marked "Hidden by an admin", and an
+ * edit by the owner cannot un-hide it.
+ *
  * Write safety: POST only, CSRF token checked, target validated as an
  * existing *student* account (admins cannot suspend themselves or other
  * admins), status validated against the ENUM, parameterised UPDATE, then
@@ -26,7 +32,7 @@ require_admin();
 require_once __DIR__ . '/../includes/db.php';
 
 $view = (string) ($_GET['view'] ?? 'users');
-if (!valid_enum($view, ['users', 'reviews'])) {
+if (!valid_enum($view, ['users', 'skills', 'reviews'])) {
     $view = 'users';
 }
 
@@ -38,7 +44,7 @@ function admin_back_url(string $view): string
 {
     $query = ['view' => $view === 'users' ? '' : $view];
     if (!empty($_POST['return']) && is_string($_POST['return'])) {
-        $query += array_intersect_key((array) json_decode($_POST['return'], true), ['q' => 1, 'status' => 1]);
+        $query += array_intersect_key((array) json_decode($_POST['return'], true), ['q' => 1, 'status' => 1, 'type' => 1]);
     }
     $query = array_filter($query, static fn ($v) => is_string($v) && $v !== '');
     return '/pages/admin.php' . ($query ? '?' . http_build_query($query) : '');
@@ -73,6 +79,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['target'] ?? '') === 'revie
         $_SESSION['flash_success'] = $newStatus === 'hidden'
             ? 'Review hidden. The student it was about can no longer see it.'
             : 'Review restored and visible again.';
+    }
+    redirect($back);
+}
+
+/* ------------------------------------------------------------------ */
+/* Hide / restore a skill listing (SB-034)                              */
+/* ------------------------------------------------------------------ */
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['target'] ?? '') === 'skill') {
+    $userSkillId = filter_var($_POST['user_skill_id'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+    $newStatus   = (string) ($_POST['status'] ?? '');
+    $back        = admin_back_url('skills');
+
+    if (!csrf_valid()) {
+        $_SESSION['flash_error'] = 'Your session expired. Please try again.';
+        redirect($back);
+    }
+    if ($userSkillId === false || !valid_enum($newStatus, ['active', 'hidden'])) {
+        $_SESSION['flash_error'] = 'That moderation request was not valid.';
+        redirect($back);
+    }
+
+    $find = $pdo->prepare(
+        'SELECT us.user_skill_id, s.name AS skill_name, u.name AS owner_name
+         FROM user_skills us
+         JOIN skills s ON s.skill_id = us.skill_id
+         JOIN users u  ON u.user_id  = us.user_id
+         WHERE us.user_skill_id = :id
+         LIMIT 1'
+    );
+    $find->execute(['id' => $userSkillId]);
+    $listing = $find->fetch();
+
+    if (!$listing) {
+        $_SESSION['flash_error'] = 'That skill listing no longer exists.';
+    } else {
+        $update = $pdo->prepare('UPDATE user_skills SET status = :status WHERE user_skill_id = :id');
+        $update->execute(['status' => $newStatus, 'id' => $userSkillId]);
+        $_SESSION['flash_success'] = $newStatus === 'hidden'
+            ? $listing['owner_name'] . "'s " . $listing['skill_name'] . ' listing is hidden from search and matches.'
+            : $listing['owner_name'] . "'s " . $listing['skill_name'] . ' listing is visible again.';
     }
     redirect($back);
 }
@@ -165,6 +212,54 @@ $stats = $pdo->query(
 $returnQuery = json_encode(array_filter(['q' => $keyword, 'status' => $statusFilter]));
 
 /* ------------------------------------------------------------------ */
+/* List skill listings (SB-034)                                         */
+/* ------------------------------------------------------------------ */
+
+$listings = [];
+$skillStats = $pdo->query(
+    'SELECT COUNT(*) AS total, SUM(status = \'active\') AS active, SUM(status = \'hidden\') AS hidden FROM user_skills'
+)->fetch();
+
+$skillStatus = '';
+$skillType   = '';
+if ($view === 'skills') {
+    $sWhere  = ['1 = 1'];
+    $sParams = [];
+    if ($keyword !== '') {
+        $like = '%' . addcslashes($keyword, '%_\\') . '%';
+        $sWhere[] = '(u.name LIKE :kw1 OR s.name LIKE :kw2 OR us.description LIKE :kw3)';
+        $sParams += [':kw1' => $like, ':kw2' => $like, ':kw3' => $like];
+    }
+    $skillStatus = (string) ($_GET['status'] ?? '');
+    if (!valid_enum($skillStatus, ['active', 'hidden'])) {
+        $skillStatus = '';
+    }
+    if ($skillStatus !== '') {
+        $sWhere[] = 'us.status = :sstatus';
+        $sParams[':sstatus'] = $skillStatus;
+    }
+    $skillType = (string) ($_GET['type'] ?? '');
+    if (!valid_enum($skillType, ['offer', 'want'])) {
+        $skillType = '';
+    }
+    if ($skillType !== '') {
+        $sWhere[] = 'us.type = :stype';
+        $sParams[':stype'] = $skillType;
+    }
+    $list = $pdo->prepare(
+        'SELECT us.user_skill_id, us.type, us.level, us.mode, us.description, us.status, us.created_at,
+                s.name AS skill_name, s.category, u.name AS owner_name, u.status AS owner_status
+         FROM user_skills us
+         JOIN skills s ON s.skill_id = us.skill_id
+         JOIN users u  ON u.user_id  = us.user_id
+         WHERE ' . implode(' AND ', $sWhere) . '
+         ORDER BY us.status = \'hidden\' DESC, us.created_at DESC'
+    );
+    $list->execute($sParams);
+    $listings = $list->fetchAll();
+}
+
+/* ------------------------------------------------------------------ */
 /* List reviews (SB-035)                                                */
 /* ------------------------------------------------------------------ */
 
@@ -217,11 +312,14 @@ require_once __DIR__ . '/../includes/header.php';
 <div class="page-header">
     <p class="label-md landing-eyebrow">Moderation</p>
     <h1 class="headline-lg">Admin</h1>
-    <p class="page-header__lede">Moderate student accounts and reviews. Nothing is deleted, so every action can be undone.</p>
+    <p class="page-header__lede">Moderate student accounts, skill listings and reviews. Nothing is deleted, so every action can be undone.</p>
 </div>
 
 <nav class="admin-tabs" aria-label="Admin sections">
     <a href="/pages/admin.php" class="filter-chip<?= $view === 'users' ? ' is-active' : '' ?>"<?= $view === 'users' ? ' aria-current="page"' : '' ?>>Accounts</a>
+    <a href="/pages/admin.php?view=skills" class="filter-chip<?= $view === 'skills' ? ' is-active' : '' ?>"<?= $view === 'skills' ? ' aria-current="page"' : '' ?>>
+        Skills<?php if ((int) $skillStats['hidden'] > 0): ?> <span class="card__meta">(<?= (int) $skillStats['hidden'] ?> hidden)</span><?php endif; ?>
+    </a>
     <a href="/pages/admin.php?view=reviews" class="filter-chip<?= $view === 'reviews' ? ' is-active' : '' ?>"<?= $view === 'reviews' ? ' aria-current="page"' : '' ?>>
         Reviews<?php if ((int) $reviewStats['hidden'] > 0): ?> <span class="card__meta">(<?= (int) $reviewStats['hidden'] ?> hidden)</span><?php endif; ?>
     </a>
@@ -310,6 +408,102 @@ require_once __DIR__ . '/../includes/header.php';
                                     <?php endif; ?>
                                 </form>
                             <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+<?php endif; ?>
+
+<?php elseif ($view === 'skills'): /* ---------------- Skills view (SB-034) ---------------- */ ?>
+
+<ul class="stat-row" aria-label="Skill listing totals">
+    <li class="stat"><span class="stat__num"><?= (int) $skillStats['total'] ?></span><span class="stat__label">Listings</span></li>
+    <li class="stat"><span class="stat__num"><?= (int) $skillStats['active'] ?></span><span class="stat__label">Visible</span></li>
+    <li class="stat stat--warn"><span class="stat__num"><?= (int) $skillStats['hidden'] ?></span><span class="stat__label">Hidden</span></li>
+</ul>
+
+<form class="search-form admin-filter" method="get" action="/pages/admin.php" role="search">
+    <input type="hidden" name="view" value="skills">
+    <div class="search-form__keyword">
+        <label for="q">Find a listing</label>
+        <input type="search" id="q" name="q" value="<?= e($keyword) ?>" maxlength="100" placeholder="Student, skill or description text">
+    </div>
+    <div>
+        <label for="type">Type</label>
+        <select id="type" name="type" data-autosubmit>
+            <option value="">All</option>
+            <option value="offer"<?= $skillType === 'offer' ? ' selected' : '' ?>>Offered</option>
+            <option value="want"<?= $skillType === 'want' ? ' selected' : '' ?>>Wanted</option>
+        </select>
+    </div>
+    <div>
+        <label for="status">Status</label>
+        <select id="status" name="status" data-autosubmit>
+            <option value="">All</option>
+            <option value="active"<?= $skillStatus === 'active' ? ' selected' : '' ?>>Visible</option>
+            <option value="hidden"<?= $skillStatus === 'hidden' ? ' selected' : '' ?>>Hidden</option>
+        </select>
+    </div>
+    <div class="search-form__actions">
+        <button type="submit" class="btn btn--primary">Filter</button>
+        <?php if ($keyword !== '' || $skillStatus !== '' || $skillType !== ''): ?>
+            <a href="/pages/admin.php?view=skills" class="btn btn--tertiary">Clear</a>
+        <?php endif; ?>
+    </div>
+</form>
+
+<?php if ($listings === []): ?>
+    <p class="empty-state">No skill listings match that filter.</p>
+<?php else: ?>
+    <?php $skillReturn = json_encode(array_filter(['q' => $keyword, 'status' => $skillStatus, 'type' => $skillType])); ?>
+    <div class="admin-table-wrap">
+        <table class="admin-table">
+            <caption class="visually-hidden">Skill listings</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Skill</th>
+                    <th scope="col">Student</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Level</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Status</th>
+                    <th scope="col"><span class="visually-hidden">Action</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($listings as $l): ?>
+                    <?php $isHidden = $l['status'] === 'hidden'; ?>
+                    <tr class="<?= $isHidden ? 'is-suspended' : '' ?>">
+                        <th scope="row" data-label="Skill">
+                            <?= e($l['skill_name']) ?>
+                            <span class="card__meta"><?= e(enum_label($l['category'])) ?></span>
+                        </th>
+                        <td data-label="Student">
+                            <?= e($l['owner_name']) ?>
+                            <?php if ($l['owner_status'] === 'suspended'): ?><span class="card__meta">(suspended)</span><?php endif; ?>
+                        </td>
+                        <td data-label="Type"><?= $l['type'] === 'offer' ? 'Offered' : 'Wanted' ?></td>
+                        <td data-label="Level"><?= e(enum_label($l['level'])) ?></td>
+                        <td data-label="Description" class="admin-table__comment"><?= $l['description'] !== null && $l['description'] !== '' ? e(mb_strimwidth($l['description'], 0, 140, '…')) : '<span class="card__meta">No description</span>' ?></td>
+                        <td data-label="Status">
+                            <span class="chip <?= $isHidden ? 'chip--status-declined' : 'chip--status-accepted' ?>"><?= $isHidden ? 'Hidden' : 'Visible' ?></span>
+                        </td>
+                        <td class="admin-table__action">
+                            <form method="post" action="/pages/admin.php?view=skills" class="inline-form">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="target" value="skill">
+                                <input type="hidden" name="user_skill_id" value="<?= (int) $l['user_skill_id'] ?>">
+                                <input type="hidden" name="return" value="<?= e($skillReturn) ?>">
+                                <?php if ($isHidden): ?>
+                                    <input type="hidden" name="status" value="active">
+                                    <button type="submit" class="btn btn--secondary btn--sm">Restore<span class="visually-hidden"> <?= e($l['skill_name']) ?> listing by <?= e($l['owner_name']) ?></span></button>
+                                <?php else: ?>
+                                    <input type="hidden" name="status" value="hidden">
+                                    <button type="submit" class="btn btn--danger btn--sm" data-confirm="Hide <?= e($l['owner_name']) ?>'s <?= e($l['skill_name']) ?> listing? It will disappear from search and matches.">Hide<span class="visually-hidden"> <?= e($l['skill_name']) ?> listing by <?= e($l['owner_name']) ?></span></button>
+                                <?php endif; ?>
+                            </form>
                         </td>
                     </tr>
                 <?php endforeach; ?>

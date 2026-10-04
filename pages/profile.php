@@ -237,7 +237,7 @@ $catalogue = $pdo->query(
 
 $listSkills = $pdo->prepare(
     'SELECT us.user_skill_id, us.skill_id, us.type, us.level, us.mode,
-            us.availability, us.description, s.name AS skill_name, s.category
+            us.availability, us.description, us.status, s.name AS skill_name, s.category
      FROM user_skills us
      INNER JOIN skills s ON s.skill_id = us.skill_id
      WHERE us.user_id = :user_id
@@ -483,6 +483,9 @@ $skillForm = static function (
                         </p>
                         <?php if (!empty($row['description'])): ?>
                             <p class="body-md"><?= e($row['description']) ?></p>
+                        <?php endif; ?>
+                        <?php if ($row['status'] === 'hidden'): ?>
+                            <p class="card__meta"><span class="review-card__hidden">Hidden by an admin</span> &middot; Other students can't see this listing in search or matches.</p>
                         <?php endif; ?>
                         <div class="btn-row">
                             <a href="/pages/profile.php?edit=<?= (int) $row['user_skill_id'] ?>" class="btn btn--secondary btn--sm">Edit</a>
