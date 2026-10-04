@@ -123,7 +123,7 @@ require_once __DIR__ . '/../includes/header.php';
                 </div>
             <?php endif; ?>
 
-            <form method="post" action="/pages/login.php" novalidate>
+            <form method="post" action="/pages/login.php" novalidate data-validate="login">
                 <div class="field">
                     <label for="email">Email</label>
                     <input

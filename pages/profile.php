@@ -286,7 +286,7 @@ $skillForm = static function (
         || ($formAction === 'update_skill' && $action === 'update_skill');
     $showErrors = $isThisForm && $errors !== [];
     ?>
-    <form method="post" action="/pages/profile.php" novalidate>
+    <form method="post" action="/pages/profile.php" novalidate data-validate="skill">
         <input type="hidden" name="action" value="<?= e($formAction) ?>">
         <input type="hidden" name="type" value="<?= e($type) ?>">
         <?php if ($userSkillId): ?>
@@ -373,7 +373,7 @@ $skillForm = static function (
                 </div>
             <?php endif; ?>
 
-            <form method="post" action="/pages/profile.php" novalidate>
+            <form method="post" action="/pages/profile.php" novalidate data-validate="profile">
                 <input type="hidden" name="action" value="save_profile">
                 <div class="form-grid form-grid--2">
                     <div class="field">

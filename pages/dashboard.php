@@ -589,7 +589,7 @@ require_once __DIR__ . '/../includes/header.php';
             <div class="form-error-summary" role="alert"><?= e($reviewErrors['form']) ?></div>
         <?php endif; ?>
 
-        <form method="post" action="/pages/dashboard.php#review" novalidate>
+        <form method="post" action="/pages/dashboard.php#review" novalidate data-validate="review">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="review">
             <input type="hidden" name="session_id" value="<?= (int) $reviewing['session_id'] ?>">
@@ -640,7 +640,7 @@ require_once __DIR__ . '/../includes/header.php';
             <div class="form-error-summary" role="alert"><?= e($errors['form']) ?></div>
         <?php endif; ?>
 
-        <form method="post" action="/pages/dashboard.php" novalidate>
+        <form method="post" action="/pages/dashboard.php" novalidate data-validate="request">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="send_request">
             <input type="hidden" name="offer_id" value="<?= (int) $offer['user_skill_id'] ?>">

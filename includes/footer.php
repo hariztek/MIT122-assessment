@@ -16,5 +16,6 @@
     </div>
 </footer>
 <script src="/assets/js/main.js?v=<?= filemtime(__DIR__ . '/../assets/js/main.js') ?>" defer></script>
+<script src="/assets/js/validation.js?v=<?= filemtime(__DIR__ . '/../assets/js/validation.js') ?>" defer></script>
 </body>
 </html>

@@ -130,7 +130,7 @@ require_once __DIR__ . '/../includes/header.php';
                 </div>
             <?php endif; ?>
 
-            <form method="post" action="/pages/register.php" novalidate>
+            <form method="post" action="/pages/register.php" novalidate data-validate="register">
                 <div class="field">
                     <label for="name">Name</label>
                     <input
