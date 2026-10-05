@@ -7,9 +7,12 @@
  * session; a mismatch is rejected without saying which field was wrong.
  *
  * Logout lives here too — the shared header already links to
- * /pages/login.php?action=logout — so one page owns the full session
- * start/end cycle. Protected pages call require_login() in
- * includes/auth.php (SB-014).
+ * /pages/login.php?action=logout&token=<csrf token> — so one page owns
+ * the full session start/end cycle. The token stops another site from
+ * logging a student out with a plain link, and it dies with the
+ * session, so having it in the URL exposes nothing.
+ *
+ * Protected pages call require_login() in includes/auth.php (SB-014).
  *
  * Every check here is server-side. HTML5 attributes are a convenience
  * only; this page re-validates on POST even if JavaScript is disabled.
@@ -22,6 +25,11 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 if (isset($_GET['action']) && $_GET['action'] === 'logout') {
+    $sent = $_GET['token'] ?? '';
+    if (!is_string($sent) || empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $sent)) {
+        // Not from our own Log out link: ignore it and stay logged in.
+        redirect(isset($_SESSION['user_id']) ? '/pages/profile.php' : '/pages/login.php');
+    }
     $_SESSION = [];
     if (ini_get('session.use_cookies')) {
         $params = session_get_cookie_params();

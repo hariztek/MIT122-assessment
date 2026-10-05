@@ -133,7 +133,7 @@ $navAttrs = static function (string $file) use ($currentPage): string {
                         <?php if ($account['role'] === 'admin'): ?>
                             <a href="/pages/admin.php" <?= $navAttrs('admin.php') ?>>Admin</a>
                         <?php endif; ?>
-                        <a href="/pages/login.php?action=logout" class="site-nav__link account-menu__logout">Log out</a>
+                        <a href="/pages/login.php?action=logout&amp;token=<?= e(csrf_token()) ?>" class="site-nav__link account-menu__logout">Log out</a>
                     </div>
                 </div>
             <?php else: ?>
