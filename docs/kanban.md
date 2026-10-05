@@ -148,25 +148,25 @@ Almost all cards start in **To Do**. `SB-001`, `SB-002`, and `SB-003` are alread
 | SB-017 | `profile.php` — add/edit/remove offered skills (FR-03/FR-04) | Done | Must | 5 | M | SB-015 |
 | SB-018 | `profile.php` — add/edit/remove wanted skills (FR-03/FR-04) | Done | Must | 5 | M | SB-017 |
 | SB-019 | Seed skill category taxonomy in `skills` table | Done | Must | 6 | S | SB-004 |
-| SB-020 | `search.php` — keyword search (FR-05) | Testing | Must | 6 | M | SB-019 |
-| SB-021 | `search.php` — category filter | Testing | Must | 6 | S | SB-020 |
-| SB-022 | `search.php` — pagination/listing UI polish | Testing | Should | 6 | S | SB-020 |
-| SB-023 | `matches.php` — deterministic score calc (+50/+25/+15/+10, FR-06) | Testing | Must | 7 | L | SB-017, SB-018 |
-| SB-024 | `matches.php` — plain-language explanation per match | Testing | Must | 7 | M | SB-023 |
-| SB-025 | `matches.php` — ranked-results UI polish | Testing | Should | 7 | S | SB-023 |
-| SB-026 | Send session request with goal + proposed time (FR-07) | Testing | Must | 7 | M | SB-023 |
-| SB-027 | `dashboard.php` — incoming/outgoing request lists | Testing | Must | 7 | M | SB-026 |
-| SB-028 | Accept/decline a pending request (FR-08) | Testing | Must | 7 | M | SB-026, SB-027 |
-| SB-029 | Cancel/complete an authorised request → creates `sessions` row (FR-08) | Testing | Must | 7 | M | SB-028 |
-| SB-030 | Review allowed only after shared completed session (FR-09) | Testing | Must | 8 | M | SB-029 |
-| SB-031 | Dashboard: show reviews left/received | Testing | Should | 8 | S | SB-030 |
-| SB-032 | `admin.php` — role-restricted access guard | Testing | Must | 8 | S | SB-014 |
-| SB-033 | Admin: moderate user accounts (FR-10) | Testing | Must | 8 | M | SB-032 |
-| SB-034 | Admin: moderate individual skill listings *(raised from Could: FR-10 names skills)* | Testing | Must | 8 | S | SB-032, SB-019 |
-| SB-035 | Admin: hide inappropriate reviews (FR-10) *(raised from Should: FR-10 names reviews)* | Testing | Must | 8 | S | SB-032, SB-030 |
-| SB-036 | End-to-end manual test pass, all 8 pages | To Do | Must | 9 | L | SB-035 |
-| SB-037 | Responsive / cross-browser check | To Do | Must | 9 | M | SB-036 |
-| SB-038 | Security pass — parameterised queries, session checks, hashing on every write path | To Do | Must | 9 | M | SB-036 |
+| SB-020 | `search.php` — keyword search (FR-05) | Done | Must | 6 | M | SB-019 |
+| SB-021 | `search.php` — category filter | Done | Must | 6 | S | SB-020 |
+| SB-022 | `search.php` — pagination/listing UI polish | Done | Should | 6 | S | SB-020 |
+| SB-023 | `matches.php` — deterministic score calc (+50/+25/+15/+10, FR-06) | Done | Must | 7 | L | SB-017, SB-018 |
+| SB-024 | `matches.php` — plain-language explanation per match | Done | Must | 7 | M | SB-023 |
+| SB-025 | `matches.php` — ranked-results UI polish | Done | Should | 7 | S | SB-023 |
+| SB-026 | Send session request with goal + proposed time (FR-07) | Done | Must | 7 | M | SB-023 |
+| SB-027 | `dashboard.php` — incoming/outgoing request lists | Done | Must | 7 | M | SB-026 |
+| SB-028 | Accept/decline a pending request (FR-08) | Done | Must | 7 | M | SB-026, SB-027 |
+| SB-029 | Cancel/complete an authorised request → creates `sessions` row (FR-08) | Done | Must | 7 | M | SB-028 |
+| SB-030 | Review allowed only after shared completed session (FR-09) | Done | Must | 8 | M | SB-029 |
+| SB-031 | Dashboard: show reviews left/received | Done | Should | 8 | S | SB-030 |
+| SB-032 | `admin.php` — role-restricted access guard | Done | Must | 8 | S | SB-014 |
+| SB-033 | Admin: moderate user accounts (FR-10) | Done | Must | 8 | M | SB-032 |
+| SB-034 | Admin: moderate individual skill listings *(raised from Could: FR-10 names skills)* | Done | Must | 8 | S | SB-032, SB-019 |
+| SB-035 | Admin: hide inappropriate reviews (FR-10) *(raised from Should: FR-10 names reviews)* | Done | Must | 8 | S | SB-032, SB-030 |
+| SB-036 | End-to-end manual test pass, all 8 pages | Done | Must | 9 | L | SB-035 |
+| SB-037 | Responsive / cross-browser check | Testing | Must | 9 | M | SB-036 |
+| SB-038 | Security pass — parameterised queries, session checks, hashing on every write path | Testing | Must | 9 | M | SB-036 |
 | SB-039 | Usability fixes from testing + tutor feedback | To Do | Must | 10 | L | SB-036, SB-037, SB-038 |
 | SB-040 | Installation/setup documentation (SLO-C) | Testing | Must | 11 | M | SB-039 |
 | SB-041 | In-code documentation pass | To Do | Should | 11 | M | SB-039 |
