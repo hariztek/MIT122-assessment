@@ -192,9 +192,12 @@ the project folder and change `DB_HOST` to `127.0.0.1` (see
 
 ## Demo accounts
 
-`seed_demo.sql` creates these accounts. They all share one local test
-password, which is written at the top of `database/seed_demo.sql`. It
-is a placeholder for local testing only.
+`seed_demo.sql` creates these accounts. They all use the same password:
+
+**Password for every demo account:** `YGUpkCHBmRc`
+
+This is a placeholder for local testing only and is not used anywhere
+else.
 
 | Email | Role | Useful for |
 |---|---|---|
