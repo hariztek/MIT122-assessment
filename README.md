@@ -266,8 +266,9 @@ The maximum is 100. Results are sorted by score.
   `password_verify()`.
 - Every database query is a PDO prepared statement with bound
   parameters, which prevents SQL injection.
-- Session requests, request updates, reviews and every admin action
-  check a CSRF (cross-site request forgery) token.
+- Every form that changes data (register, login, profile, skills,
+  requests, reviews, admin actions) checks a CSRF (cross-site request
+  forgery) token, so another website can't submit it on a user's behalf.
 - Every request re-checks login, account status and role on the server.
   Users can only edit their own data, and only admins can reach
   `admin.php`.

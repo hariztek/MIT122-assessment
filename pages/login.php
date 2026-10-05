@@ -47,6 +47,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email    = mb_strtolower(trim((string) ($_POST['email'] ?? '')));
     $password = (string) ($_POST['password'] ?? '');
 
+    if (!csrf_valid()) {
+        $errors['form'] = 'Your session expired. Please try again.';
+    }
+
     $missing = missing_fields(
         [
             'email'    => $email,
@@ -124,6 +128,7 @@ require_once __DIR__ . '/../includes/header.php';
             <?php endif; ?>
 
             <form method="post" action="/pages/login.php" novalidate data-validate="login">
+                <?= csrf_field() ?>
                 <div class="field">
                     <label for="email">Email</label>
                     <input

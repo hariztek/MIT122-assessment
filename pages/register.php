@@ -34,6 +34,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = (string) ($_POST['password'] ?? '');
     $confirm  = (string) ($_POST['password_confirm'] ?? '');
 
+    if (!csrf_valid()) {
+        $errors['form'] = 'Your session expired. Please try again.';
+    }
+
     $missing = missing_fields(
         [
             'name'             => $name,
@@ -131,6 +135,7 @@ require_once __DIR__ . '/../includes/header.php';
             <?php endif; ?>
 
             <form method="post" action="/pages/register.php" novalidate data-validate="register">
+                <?= csrf_field() ?>
                 <div class="field">
                     <label for="name">Name</label>
                     <input

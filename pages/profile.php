@@ -55,6 +55,13 @@ $editId = filter_var($_GET['edit'] ?? '', FILTER_VALIDATE_INT) ?: 0;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = (string) ($_POST['action'] ?? '');
 
+    // Every profile write (details, add/edit/remove skill) needs the
+    // session's CSRF token, so another site can't post here as you.
+    if (!csrf_valid()) {
+        $_SESSION['flash_error'] = 'Your session expired. Please try again.';
+        redirect('/pages/profile.php');
+    }
+
     if ($action === 'save_profile') {
         $name   = trim((string) ($_POST['name'] ?? ''));
         $campus = trim((string) ($_POST['campus'] ?? ''));
@@ -287,6 +294,7 @@ $skillForm = static function (
     $showErrors = $isThisForm && $errors !== [];
     ?>
     <form method="post" action="/pages/profile.php" novalidate data-validate="skill">
+        <?= csrf_field() ?>
         <input type="hidden" name="action" value="<?= e($formAction) ?>">
         <input type="hidden" name="type" value="<?= e($type) ?>">
         <?php if ($userSkillId): ?>
@@ -358,6 +366,11 @@ $skillForm = static function (
 };
 ?>
 
+<?php if (!empty($_SESSION['flash_error'])): ?>
+    <div class="alert alert--error" role="alert"><?= e($_SESSION['flash_error']) ?></div>
+    <?php unset($_SESSION['flash_error']); ?>
+<?php endif; ?>
+
 <div class="profile">
     <header class="page-header">
         <h1 class="headline-lg">Profile</h1>
@@ -374,6 +387,7 @@ $skillForm = static function (
             <?php endif; ?>
 
             <form method="post" action="/pages/profile.php" novalidate data-validate="profile">
+                <?= csrf_field() ?>
                 <input type="hidden" name="action" value="save_profile">
                 <div class="form-grid form-grid--2">
                     <div class="field">
@@ -490,6 +504,7 @@ $skillForm = static function (
                         <div class="btn-row">
                             <a href="/pages/profile.php?edit=<?= (int) $row['user_skill_id'] ?>" class="btn btn--secondary btn--sm">Edit</a>
                             <form method="post" action="/pages/profile.php" class="inline-form">
+                                <?= csrf_field() ?>
                                 <input type="hidden" name="action" value="delete_skill">
                                 <input type="hidden" name="user_skill_id" value="<?= (int) $row['user_skill_id'] ?>">
                                 <button type="submit" class="btn btn--secondary btn--sm">Remove</button>
