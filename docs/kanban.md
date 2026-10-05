@@ -168,7 +168,7 @@ Almost all cards start in **To Do**. `SB-001`, `SB-002`, and `SB-003` are alread
 | SB-037 | Responsive / cross-browser check | To Do | Must | 9 | M | SB-036 |
 | SB-038 | Security pass — parameterised queries, session checks, hashing on every write path | To Do | Must | 9 | M | SB-036 |
 | SB-039 | Usability fixes from testing + tutor feedback | To Do | Must | 10 | L | SB-036, SB-037, SB-038 |
-| SB-040 | Installation/setup documentation (SLO-C) | To Do | Must | 11 | M | SB-039 |
+| SB-040 | Installation/setup documentation (SLO-C) | Testing | Must | 11 | M | SB-039 |
 | SB-041 | In-code documentation pass | To Do | Should | 11 | M | SB-039 |
 | SB-042 | Sync planning docs if scope changed during build | To Do | Could | 11 | S | SB-039 |
 | SB-043 | Final rehearsal + demo script | To Do | Must | 12 | M | SB-040, SB-041 |
