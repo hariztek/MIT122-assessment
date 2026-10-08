@@ -3,14 +3,14 @@
  * includes/functions.php
  *
  * Shared server-side validation and small utility helpers for Student
- * SkillBridge (per AGENTS.md: "one validation approach shared via
- * includes/functions.php — don't reinvent validation per page").
+ * SkillBridge (project convention: one validation approach shared via
+ * includes/functions.php, so validation isn't reinvented per page).
  *
  * Every write path (register, profile edits, session requests, reviews)
  * must call these — or equivalent direct checks — server-side, no
  * matter what client-side JS in assets/js/validation.js already
  * checked. Client-side validation is a convenience only, never a
- * security boundary (AGENTS.md, NFRs).
+ * security boundary (see the non-functional requirements).
  */
 
 /**

@@ -19,9 +19,8 @@
  * to a sensible default otherwise. All links use root-relative paths
  * (starting with /) so they work identically whether the including
  * page lives at the repo root or one level down in pages/ — this is
- * intentionally more robust than the "../" relative paths implied by
- * AGENTS.md's directory note, since it never breaks based on the
- * caller's depth.
+ * intentionally more robust than "../" relative paths, since it never
+ * breaks based on the caller's depth.
  */
 
 require_once __DIR__ . '/functions.php';

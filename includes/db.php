@@ -2,8 +2,8 @@
 /**
  * includes/db.php
  *
- * Single PDO connection point for Student SkillBridge (per AGENTS.md:
- * "one DB-connection file, included wherever needed"). Every page that
+ * Single PDO connection point for Student SkillBridge (project
+ * convention: one DB-connection file, included wherever needed). Every page that
  * needs database access should `require_once __DIR__ . '/db.php';`
  * (or the relative equivalent from pages/) and then use the $pdo
  * variable it defines.

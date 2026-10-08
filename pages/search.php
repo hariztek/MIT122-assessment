@@ -14,7 +14,7 @@
  * into the query string except fixed, code-defined SQL fragments.
  *
  * Login is required because results show students' names, campus and
- * availability (see .agent/DECISIONS.md).
+ * availability.
  */
 require_once __DIR__ . '/../includes/auth.php';
 require_login();

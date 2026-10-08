@@ -12,7 +12,7 @@ This board plans and tracks the Week 4–12 build of Student SkillBridge: the fr
 
 **Columns:** `To Do` → `In Progress` → `Testing` → `Done`
 
-**Definition of Done** (per `REPORT_REQUIREMENTS.md` §3): a card only moves to Done when the work is **implemented, validated, tested, and documented**. "Validated" means it does what the acceptance criteria say; "tested" means it was exercised manually against the happy path and at least one edge case; "documented" means the relevant include/page has enough comment/context that the student (or another agent) can explain it in the final demo.
+**Definition of Done** (per `REPORT_REQUIREMENTS.md` §3): a card only moves to Done when the work is **implemented, validated, tested, and documented**. "Validated" means it does what the acceptance criteria say; "tested" means it was exercised manually against the happy path and at least one edge case; "documented" means the relevant include/page has enough comment/context that the student can explain it in the final demo.
 
 **Method:** personal Kanban board plus an iterative Agile approach — **not** full Scrum. This is a one-person project, so there are no team roles (Product Owner, Scrum Master) and no multi-person ceremonies. Work is pulled from a prioritised backlog in short weekly iterations, one end-to-end feature (vertical slice) at a time, demonstrated to the tutor each week, with feedback folded back into the backlog. This mirrors the methodology already committed to in the Assessment 1 report — this board is that methodology put into practice, not a new plan.
 
@@ -215,45 +215,7 @@ Written once per card here rather than duplicated a third time in the table abov
 
 ---
 
-## 5. Instructions for the Notion agent
-
-Copy everything in this section to give to an agent with Notion access.
-
-> **Goal:** create or update a **SkillBridge Kanban** board inside the existing **Assessment** database/workspace in Notion, seeded from the card list in `kanban.md` §4 (Student SkillBridge, MIT122 Assessment 2, Harikrushna Patel, 985703).
->
-> **Step 0 — inspect before you create.** Before adding anything, find the existing **Assessment** database in this Notion workspace and read its current properties. Do not create a duplicate database. If it already has equivalent fields (e.g. an existing `Status` or `Priority` select), **map onto those instead of creating near-duplicates** — only add a property from the list below if nothing equivalent already exists.
->
-> **Required database properties** (create only what's missing, per Step 0):
->
-> | Property | Type | Notes |
-> |---|---|---|
-> | `Name` | Title | Card title, e.g. "Write database/schema.sql — 6 core tables + FKs" |
-> | `Status` | Status or Select | Options: `To Do`, `In Progress`, `Testing`, `Done` — **exactly these four, no more.** Do not invent extra workflow states even if that feels tidier; if the existing DB already has more states, ask the user before changing them. |
-> | `Priority` | Select | Options: `Must`, `Should`, `Could` |
-> | `Week` | Number or Select | Target week number, 4–12 |
-> | `Estimate` | Select | Options: `S`, `M`, `L` |
-> | `Acceptance Criteria` | Rich text | 3–5 bullet points, copied from `kanban.md` §4 |
-> | `Dependencies` | Relation (preferred) or Rich text | Other Card IDs this card depends on |
-> | `Card ID` | Rich text | Stable ID, e.g. `SB-023`. **Must be unique** — this is the idempotency key (see below). |
-> | `Assessment / Project` | Select or Relation | Value: `SkillBridge · MIT122 A2` for every card |
->
-> **Board view:** create (or reuse, if one already exists for this project) a **Kanban board view grouped by `Status`**, with columns in this exact order: `To Do`, `In Progress`, `Testing`, `Done`.
->
-> **Import order:**
-> 1. Create/confirm the properties above.
-> 2. Create all 46 cards from `kanban.md` §4 with `Status = To Do`.
-> 3. Then set `SB-001`, `SB-002`, and `SB-003` to `Status = Done`, and `SB-005` to `Status = In Progress` — this reflects real, already-completed work (the GitHub repo, file scaffold, and MAMP environment exist; schema writing is the current active work), not aspirational status.
-> 4. Populate `Dependencies` using Card IDs, not free text, if the relation type is used.
->
-> **Idempotency:** before creating a card, check whether a card with that `Card ID` already exists in the database. If it does, **update its properties in place** — do not create a duplicate. This board is expected to be re-imported/re-synced as the project progresses, so this check matters every time, not just on first run.
->
-> **After import:** confirm the Kanban view renders correctly grouped by `Status` with all four columns visible and populated, then paste the Notion page/database URL back to the user.
->
-> **If anything fails** — Notion auth missing, insufficient permissions, the Assessment database can't be found — **stop and report exactly what's missing**. Do not fabricate a board, a URL, or a success message. Ask the user rather than guessing which existing database is "the Assessment one" if more than one plausible match exists.
-
----
-
-## 6. How to use this file
+## 5. How to use this file
 
 - **Weekly review (do this every Sunday):** pull the next Must-priority cards for the upcoming week from §4 into `To Do`/`In Progress`; move anything finished through `Testing` → `Done` only once it meets the Definition of Done in §1 (implemented, validated, tested, documented) — not just "code exists."
 - **Tutor demo:** each week, demo whatever is in `Testing`/`Done` to the tutor; fold feedback back into the backlog as new or revised cards rather than silently changing existing ones.
